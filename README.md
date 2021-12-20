@@ -1,4 +1,7 @@
 # quick
 
+quick.接口测试平台。本项目用于学习！
 
-uwsgi --http-socket :8002 --chdir /home/app/quick/backend --wsgi-file backend/wsgi.py --master --processes 4 --threads 2
+## 体验地址
+
+http://quick.testpub.cn/ （帐号密码自动填充）
