@@ -3,3 +3,4 @@ djangorestframework==3.13.0
 markdown==3.3.6
 django-filter==21.1
 requests==2.26.0
+celery==5.2.1
