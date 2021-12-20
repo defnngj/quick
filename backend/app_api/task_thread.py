@@ -13,6 +13,9 @@ DATA_FILE_PATH = os.path.join(BASE_DIR, "app_api", "data", "test_data.json")
 # 测试报告文件
 REPORT_PATH = os.path.join(BASE_DIR, "app_api", "data", "report.xml")
 
+# 运行测试用例文件
+TEST_FILE = os.path.join(BASE_DIR, "app_api", "running_tests.py")
+
 
 class TaskThread:
 
@@ -42,8 +45,8 @@ class TaskThread:
 
         # 3.执行运行测试用例的文件， 它会生成 result.xml 文件
         print("3.运行用例前---》", time.ctime())
-        running.delay()
-        # os.system()
+        # running.delay()
+        os.system(TEST_FILE)
         print("3.运行用例后---》", time.ctime())
 
         # 4. 读取report.xml文件，把这里面的结果放到表里面。
