@@ -59,7 +59,7 @@
 
 <script>
 import ProjectApi from '../../request/project'
-import projectDialog from './ProjectDialog.vue'
+import projectDialog from '../project/projectDialog'
 
   export default {
     components: {
