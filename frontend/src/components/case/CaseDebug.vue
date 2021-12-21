@@ -41,7 +41,7 @@
     </div>
 
     <div class="div-line">
-      <el-collapse v-model="otherNames" @change="handleChange">
+      <el-collapse v-model="otherNames">
         <!-- 断言 -->
         <el-collapse-item title="断言" name="1">
           <span style="float: left;">
@@ -131,11 +131,9 @@ import vueJsonEditor from 'vue-json-editor'
       }
     },
     created() {
-      console.log("created", this.cid)
       if (this.cid !== 0) {
         this.initCaseInfo()
       } else {
-        console.log("新建用例")
         this.api = {
           method: 'GET',
           url: 'http://httpbin.org/get',
@@ -151,23 +149,15 @@ import vueJsonEditor from 'vue-json-editor'
         }
       }
     },
-    mounted() {
-      console.log("mounted")
-    },
+    mounted() {},
     methods: {
-      handleClick(tab, event) {
-        console.log(tab, event);
-      },
-
       handleChange(val) {
-        console.log(val);
         this.getProjectList()
       },
 
       // 初始化用例信息
       async initCaseInfo() {
         let resp = await CaseApi.getCase(this.cid)
-        console.log(resp)
         this.api = resp.data
         this.api.result = JSON.parse(this.api.result)
         this.chanageProject()
@@ -184,7 +174,6 @@ import vueJsonEditor from 'vue-json-editor'
         this.api.header = JSON.stringify(this.api.header)
         this.api.params_body = JSON.stringify(this.api.params_body)
         const resp = await CaseApi.debugCase(this.api)
-        console.log(resp)
         if (resp.success == true) {
           this.api.result = resp.data
           // JSON to data
@@ -202,7 +191,6 @@ import vueJsonEditor from 'vue-json-editor'
           this.api.assert_text = JSON.stringify(this.api.assert_text)
         }
         const resp = await CaseApi.assertCase(this.api)
-        console.log(resp)
         if (resp.success == true) {
           this.$message.success('断言成功')
         } else {

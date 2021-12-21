@@ -73,16 +73,12 @@
       });
     },
     mounted() {
-      console.log("自动被执行mounted")
       // this.initTask()
       this.InitCaseTree()
     },
     methods: {
       handleCheckChange(data, checked) {
-        // console.log("aaa", data, checked);
-        // console.log("aaa1", data.id);
         if(data.id != undefined) {
-          console.log("操作的叶子节点", data.id, checked);
           if(checked == true) {
             this.form.cases.push(data.id)
           } else {
@@ -95,17 +91,15 @@
             }
           }
         }
-        console.log("cases", this.form.cases)
       },
       handleNodeClick(data) {
-        console.log("bbb", data);
+        console.log("click node", data);
       },
 
       // 获取用例树
       async InitCaseTree() {
         const resp = await CaseApi.getCaseTree()
         if (resp.success == true) {
-          console.log(resp.data)
           this.data = resp.data
         } else {
           this.$message.error(resp.error.message);

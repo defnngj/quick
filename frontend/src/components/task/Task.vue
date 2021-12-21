@@ -91,7 +91,6 @@ import TaskDialog from './TaskDialog.vue'
       }
     },
     created() {
-      console.log("父组件", this.showDailog)
     },
     mounted() {
       this.initTask()
@@ -123,7 +122,6 @@ import TaskDialog from './TaskDialog.vue'
 
       // 显示编辑窗口
       showEdit(row) {
-        console.log("row.id", row.id)
         this.taskId = row.id
         this.showDailog = true
       },
@@ -160,14 +158,12 @@ import TaskDialog from './TaskDialog.vue'
 
       // 修改每页显示个数
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`)
         this.query.size = val
         this.initTask()
       },
 
       // 点给第几页
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`)
         this.query.page = val
         this.initTask()
       }

@@ -106,14 +106,11 @@ export default {
           // this.loginSubmit();
           UserApi.login(this.form).then(resp => {
             if (resp.success == true) {
-              console.log("resp-->", resp);
               sessionStorage.token = resp.data.Token
               sessionStorage.user = resp.data.User
               // this.$store.commit('login', resp.data.Token)
               this.$router.push({path: '/main/project'})
               this.$message.success("登录成功！")
-              // console.log('wtf', this.$route.query.redirect);
-              // this.$router.push(this.$route.query.redirect || '/project');
             } else {
               this.$message.error(resp.error.message);
             }

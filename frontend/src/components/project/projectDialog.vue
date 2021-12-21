@@ -60,7 +60,6 @@
       });
     },
     mounted() {
-      console.log("自动被执行mounted")
     //   this.initProject()
     },
     methods: {
