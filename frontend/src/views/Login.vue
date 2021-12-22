@@ -84,9 +84,9 @@ export default {
         password: [{ required: true, message: "请输入密码", trigger: "blur" }],
       },
       regForm: {
-        username: "zhangsan",
-        password1: "abc123456",
-        password2: "abc123456",
+        username: "",
+        password1: "",
+        password2: "",
       },
       regRules: {
         username: [{ required: true, message: "请输入账号", trigger: "blur" }],
