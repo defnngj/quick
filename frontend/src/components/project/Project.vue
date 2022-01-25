@@ -6,40 +6,39 @@
         <el-breadcrumb-item>项目管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <el-card class="box-card">
+    <el-card class="box-card" shadow="never">
       <div class="filter-line">
         <el-button cy-data="create-project" type="primary" @click="showCreate()">创建</el-button>
       </div>
-      <!-- 表格 -->
-      <el-table :data="tableData"
-          v-loading="loading"
-          element-loading-text="拼命加载中"
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.8)"
-          style="width: 100%">
-        <el-table-column prop="name" label="名称" min-width="20%">
-        </el-table-column>
-        <el-table-column prop="describe" label="描述" min-width="30%">
-        </el-table-column>
-        <el-table-column prop="status" label="状态" min-width="10%">
-          <template slot-scope="scope">
-            <span v-if="scope.row.status === true">
-              <el-tag>开启</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="info">关闭</el-tag>
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="create_time" label="创建时间" min-width="30%">
-        </el-table-column>
-        <el-table-column fixed="right" label="操作" width="100">
-          <template slot-scope="scope">
-            <el-button cy-data="edit-project" @click="showEdit(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
-            <el-button cy-data="delete-project" @click="deleteProject(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-row>
+      <div v-for="(item, index) in tableData" :key="index">
+        <el-col :span="7" class="project-card">
+          <el-card class="box-card">
+            <el-avatar shape="square" :size="100" fit="fill" :src="url"></el-avatar>
+            <div slot="header" class="clearfix">
+              <span>{{item.name}}</span>
+              <span style="float: right; padding: 3px 0">
+                <el-dropdown style="left: 5px;">
+                  <i class="el-icon-setting" style="margin-right: 15px"></i>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>
+                      <el-button cy-data="edit-project" @click="showEdit(item.id)" type="text" size="mini">编辑</el-button>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <el-button cy-data="delete-project" @click="deleteProject(item.id)" type="text">删除</el-button>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </span>
+            </div>
+            <div>
+              {{item.describe}}
+            </div>
+          </el-card>
+        </el-col>
+      </div>
+      </el-row>
+
       <!-- 分页 -->
       <div class="foot-page">
         <el-pagination
@@ -75,7 +74,8 @@ import projectDialog from '../project/projectDialog'
         query: {
           page: 1,
           size: 5,
-        }
+        },
+        url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
       }
     },
     created() {
@@ -103,15 +103,14 @@ import projectDialog from '../project/projectDialog'
       },
 
       // 显示编辑窗口
-      showEdit(row) {
-        console.log("row.id", row.id)
-        this.projectId = row.id
+      showEdit(pid) {
+        this.projectId = pid
         this.showDailog = true
       },
 
       // 删除一条项目信息
-      async deleteProject(row) {
-        const resp = await ProjectApi.deleteProject(row.id)
+      async deleteProject(pid) {
+        const resp = await ProjectApi.deleteProject(pid)
         if (resp.success == true) {
           this.$message.success("删除成功！")
           this.initProject()
@@ -155,6 +154,12 @@ import projectDialog from '../project/projectDialog'
   margin-top: 20px;
     float: right;
     margin-bottom: 20px;
+}
+.project-card {
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 15px;
+  margin-bottom: 15px
 }
 
 </style>
