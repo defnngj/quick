@@ -1,13 +1,13 @@
 <template>
   <div class="navigation">
     <el-container style="height: 100%; border: 1px solid #eee">
-      <el-aside width="160px" style="background-color: rgb(84, 92, 100)">
+      <el-aside width="160px" style="background-color: #343a40">
         <!-- <h1>重定向</h1> -->
         <img class="logo" alt="itest logo" src="../assets/quick.svg" />
         <el-menu
           default-active="onRoutes"
           class="el-menu-vertical-demo"
-          background-color="#545c64"
+          background-color="#343a40"
           text-color="#fff"
           active-text-color="#ffd04b"
         >
@@ -57,7 +57,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </el-header>
-        <el-main>
+        <el-main style="background-color: #f1f3fa;">
           <router-view> </router-view>
         </el-main>
       </el-container>
@@ -142,13 +142,12 @@ a {
   height: 22px;
 }
 .el-header {
-  background-color: #b3c0d1;
-  color: #333;
+  color: #343a40;
   line-height: 60px;
 }
 
 .el-aside {
-  color: #333;
+  color: #343a40;
 }
 </style>
 
