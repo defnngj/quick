@@ -60,11 +60,9 @@
         this.showTitle = "编辑模块"
         this.getModule()
       }
-      console.log("子组件", this.showStatus)
       this.getAllProject()
     },
     mounted() {
-      console.log("自动被执行mounted")
       // this.initProject()
     },
     methods: {
@@ -73,10 +71,8 @@
         this.loading = true
         const resp = await ProjectApi.getProjects(this.queryProjectList)
         if (resp.success == true) {
-          // console.log("resp.data", resp.data.projectList)
           var ProjectList = resp.data.projectList;
           for(let i=0; i < ProjectList.length; i++) {
-            console.log("i", ProjectList[i])
             this.projectOptions.push({
               value: ProjectList[i].id,
               label: ProjectList[i].name,
@@ -100,7 +96,6 @@
 
       // 关闭dialog
       cancelModule() {
-        console.log("子组件关闭")
         this.$emit('cancel', {})
       },
 

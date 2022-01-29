@@ -84,9 +84,9 @@ export default {
         password: [{ required: true, message: "请输入密码", trigger: "blur" }],
       },
       regForm: {
-        username: "zhangsan",
-        password1: "abc123456",
-        password2: "abc123456",
+        username: "",
+        password1: "",
+        password2: "",
       },
       regRules: {
         username: [{ required: true, message: "请输入账号", trigger: "blur" }],
@@ -106,14 +106,11 @@ export default {
           // this.loginSubmit();
           UserApi.login(this.form).then(resp => {
             if (resp.success == true) {
-              console.log("resp-->", resp);
               sessionStorage.token = resp.data.Token
               sessionStorage.user = resp.data.User
               // this.$store.commit('login', resp.data.Token)
               this.$router.push({path: '/main/project'})
               this.$message.success("登录成功！")
-              // console.log('wtf', this.$route.query.redirect);
-              // this.$router.push(this.$route.query.redirect || '/project');
             } else {
               this.$message.error(resp.error.message);
             }

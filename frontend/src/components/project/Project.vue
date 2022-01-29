@@ -79,7 +79,6 @@ import projectDialog from '../project/projectDialog'
       }
     },
     created() {
-      console.log("父组件", this.showDailog)
     },
     mounted() {
       this.initProject()
@@ -128,14 +127,12 @@ import projectDialog from '../project/projectDialog'
 
       // 修改每页显示个数
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`)
         this.query.size = val
         this.initProject()
       },
 
       // 点给第几页
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`)
         this.query.page = val
         this.initProject()
       }

@@ -94,7 +94,6 @@
     created() {
     },
     mounted() {
-      console.log("自动被执行mounted")
       this.$nextTick(() => {
         this.initChart()
       })
@@ -118,7 +117,6 @@
         this.tableData.push(resp.data)
         // 日志
         this.logDetail = resp.data.result
-        console.log("--->", this.tableData)
       },
 
       // 关闭dialog

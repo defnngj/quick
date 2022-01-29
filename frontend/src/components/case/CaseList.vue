@@ -78,7 +78,6 @@ import CaseDebug from './CaseDebug.vue'
       return {
         isList: true,
         loading: false,
-        moduleId: 0,
         tableData: [],
         showDailog: false,
         total: 0,
@@ -89,9 +88,7 @@ import CaseDebug from './CaseDebug.vue'
         caseId: 0,
       }
     },
-    created() {
-      console.log("父组件", this.showDailog)
-    },
+    created() {},
     mounted() {
       this.initCases()
     },
@@ -136,7 +133,7 @@ import CaseDebug from './CaseDebug.vue'
           ModuleApi.deleteModule(row.id).then(resp =>{
             if (resp.success == true) {
               this.$message.success("删除成功！")
-              this.initModule()
+              this.initCases()
             } else {
               this.$message.error("删除失败");
             }
@@ -145,26 +142,16 @@ import CaseDebug from './CaseDebug.vue'
         })        
       },
 
-      // 子组件的回调
-      cancelModule() {
-         console.log("接收到-子组件关闭")
-        this.showDailog = false
-        this.moduleId = 0
-        this.initModule()
-      },
-
       // 修改每页显示个数
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`)
         this.query.size = val
-        this.initModule()
+        this.initCases()
       },
 
       // 点给第几页
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`)
         this.query.page = val
-        this.initModule()
+        this.initCases()
       }
 
     }

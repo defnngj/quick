@@ -97,7 +97,6 @@ export default {
   },
   methods: {
     async handleCommand(command) {
-      console.log(command);
       if (command === 'logout') {
         const data = {
           'id': this.user.id,
