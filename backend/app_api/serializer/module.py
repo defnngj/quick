@@ -2,6 +2,17 @@ from rest_framework import serializers
 from app_api.models import Module
 
 
+
+class NodeSerializer(serializers.ModelSerializer):
+    """
+    模块树节点序列化
+    """
+
+    class Meta:
+        model = Module
+        fields = ['id', 'name', 'parent_id']  # 要显示的字段
+
+
 class ModuleSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source="project.name")  # 反向获取项目的名称
     create_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')  # 日期格式化

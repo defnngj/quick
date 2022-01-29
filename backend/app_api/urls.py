@@ -4,7 +4,7 @@ from app_api.views.user_views import LoginView
 from app_api.views.register_views import RegisterView
 from app_api.views.project_view import ProjectView, ProjectModuleView
 from app_api.views.module_view import ModuleView
-from app_api.views.module_view import ModuleTreeView
+from app_api.views.module_view import NodeTreeView
 from app_api.views.case_view import CaseViewSet
 from app_api.views.task_view import TaskViewSet
 from app_api.views.result_view import ResultViewSet
@@ -19,7 +19,7 @@ url_path = [
 
     path('v1/module/', ModuleView.as_view()),
     path('v1/module/<int:pk>/', ModuleView.as_view()),
-    path("v1/module/tree/", ModuleTreeView.as_view()),
+    path("v1/<int:pk>/node/tree/", NodeTreeView.as_view()),
 ]
 
 router = routers.SimpleRouter()
