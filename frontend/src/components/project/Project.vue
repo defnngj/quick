@@ -16,7 +16,7 @@
           <el-card class="box-card">
             <el-avatar shape="square" :size="100" fit="fill" :src="url"></el-avatar>
             <div slot="header" class="clearfix">
-              <span>{{item.name}}</span>
+              <span>{{item.id}} - {{item.name}} </span>
               <span style="float: right; padding: 3px 0">
                 <el-dropdown style="left: 5px;">
                   <i class="el-icon-setting" style="margin-right: 15px"></i>
