@@ -8,7 +8,7 @@ class Module(models.Model):
     """
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField("名称", max_length=100, null=False, default="")
-    describe = models.TextField("描述", default="")
+    describe = models.TextField("描述", null=True, blank=True, default="")
     parent_id = models.IntegerField("父级ID", default=0)
     is_delete = models.BooleanField("删除", default=False)
     update_time = models.DateTimeField("更新时间", auto_now=True)

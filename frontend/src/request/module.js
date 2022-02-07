@@ -21,6 +21,10 @@ class ModuleApi {
     updateModule(mid, data) {
       return request.put('/v1/module/'+mid+'/', data)
     }
+
+    getModuleTree(pid){
+      return request.get('/v1/'+pid+'/node/tree/')
+    }
   
   }
   

@@ -152,6 +152,7 @@ import vueJsonEditor from 'vue-json-editor'
     mounted() {},
     methods: {
       handleChange(val) {
+        console.log("val", val)
         this.getProjectList()
       },
 

@@ -7,56 +7,57 @@
       </el-breadcrumb>
     </div>
     <el-card class="box-card">
-      <div class="filter-line">
-        <el-button type="primary" @click="showCreate()">创建</el-button>
-      </div>
-      <!-- 表格 -->
-      <el-table :data="tableData" v-loading="loading" style="width: 100%">
-        <el-table-column prop="name" label="名称" min-width="15%">
-        </el-table-column>
-        <el-table-column prop="describe" label="描述" min-width="30%">
-        </el-table-column>
-        <el-table-column prop="status" label="状态" min-width="10%">
-          <template slot-scope="scope">
-            <span v-if="scope.row.status === true">
-              <el-tag>开启</el-tag>
+      <!-- 模块树 -->
+      <div class="module-tree">
+        <el-select v-model="projectId" filterable placeholder="选择项目" @change="selectProject">
+          <el-option
+            v-for="item in projectOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <div class="node-create">
+          <span style="float: right">
+            <el-button type="text" plain size="mini" icon="el-icon-circle-plus-outline" @click="showCreate()">根节点</el-button>
+          </span>
+        </div>
+        <el-tree
+          :data="moduleData"
+          show-checkbox
+          node-key="id"
+          :default-expand-all="switchTree"
+          :expand-on-click-node="false"
+          @node-click="handleNodeClick">
+          <span class="custom-tree-node" slot-scope="{ node, data }">
+            <span>{{ node.label }}</span>
+            <span>
+              <el-button
+                type="text"
+                size="mini"
+                @click="() => append(data)"
+                icon="el-icon-circle-plus-outline">
+              </el-button>
+              <el-button
+                type="text"
+                size="mini"
+                @click="() => remove(node, data)"
+                icon="el-icon-delete">
+              </el-button>
             </span>
-            <span v-else>
-              <el-tag type="info">关闭</el-tag>
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="project_name" label="项目" min-width="15%">
-        </el-table-column>
-        <el-table-column prop="create_time" label="创建" min-width="20%">
-        </el-table-column>
-        <el-table-column fixed="right" label="操作" width="100">
-          <template slot-scope="scope">
-            <el-button @click="showEdit(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
-            <el-button @click="deleteModule(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页 -->
-      <div class="foot-page">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :page-sizes="[5, 10, 20, 50]" 
-          :page-size=query.size
-          background
-          layout="total, sizes, prev, pager, next"
-          :total=total>
-        </el-pagination>
+          </span>
+        </el-tree>
       </div>
     </el-card>
-    <ModuleDialog v-if="showDailog" :mid=moduleId @cancel="cancelModule"></ModuleDialog>
+    <ModuleDialog v-if="showDailog" :mid=moduleId :pid=projectId @cancel="cancelModule"></ModuleDialog>
   </div>
 </template>
 
 <script>
+import ProjectApi from '../../request/project'
 import ModuleApi from '../../request/module'
 import ModuleDialog from './ModuleDialog.vue'
+  let id = 1000;
 
   export default {
     components: {
@@ -72,31 +73,77 @@ import ModuleDialog from './ModuleDialog.vue'
         query: {
           page: 1,
           size: 5,
-        }
+        },
+        projectId: 1,
+        projectOptions: [],
+        moduleData: [],
+        switchTree: false,
+        
+
       }
     },
     created() {
     },
     mounted() {
-      this.initModule()
+      this.initProject()
     },
     methods: {
-      // 初始化模块列表
-      async initModule() {
+      // 初始化项目列表
+      async initProject() {
         this.loading = true
-        const resp = await ModuleApi.getModules(this.query)
+        const pQuery = {
+          page: 1,
+          size: 1000,
+        }
+        const resp = await ProjectApi.getProjects(pQuery)
         if (resp.success == true) {
-          this.tableData = resp.data.moduleList
-          this.total = resp.data.total
+          const projectData = resp.data.projectList
+          this.projectOptions = []
+          for (let i = 0; i < projectData.length; i++) {
+            this.projectOptions.push({
+              value: projectData[i].id,
+              label: projectData[i].name
+            })
+          }
+          this.projectId = this.projectOptions[0].value
+          this.initModuleTree()
         } else {
           this.$message.error(resp.error.message);
         }
         this.loading = false
       },
 
-      // 显示创建窗口
+      // 选择一个项目
+      async selectProject(val) {
+        this.projectId = val
+        await this.initModuleTree()
+      },
+
+      // 初始化模块树
+      async initModuleTree() {
+        this.loading = true
+        const resp = await ModuleApi.getModuleTree(this.projectId)
+        if (resp.success == true) {
+          this.moduleData = JSON.parse(JSON.stringify(resp.data))
+        } else {
+          this.$message.error(resp.error.message);
+        }
+        this.loading = false
+      },
+
+      // 添加根节点
       showCreate() {
         this.showDailog = true
+      },
+
+      // 展开收起节点
+      switchNode() {
+        console.log("switchNode", this.switchTree)
+        if (this.switchTree === false) {
+          this.switchTree = true
+        } else {
+          this.switchTree = false
+        }
       },
 
       // 显示编辑窗口
@@ -115,7 +162,7 @@ import ModuleDialog from './ModuleDialog.vue'
           ModuleApi.deleteModule(row.id).then(resp =>{
             if (resp.success == true) {
               this.$message.success("删除成功！")
-              this.initModule()
+              this.initModuleTree()
             } else {
               this.$message.error("删除失败");
             }
@@ -128,19 +175,29 @@ import ModuleDialog from './ModuleDialog.vue'
       cancelModule() {
         this.showDailog = false
         this.moduleId = 0
-        this.initModule()
+        this.initModuleTree()
       },
 
-      // 修改每页显示个数
-      handleSizeChange(val) {
-        this.query.size = val
-        this.initModule()
+      // 添加子节点
+      append(data) {
+        const newChild = { id: id++, label: 'testtest', children: [] };
+        if (!data.children) {
+          this.$set(data, 'children', []);
+        }
+        data.children.push(newChild);
       },
 
-      // 点给第几页
-      handleCurrentChange(val) {
-        this.query.page = val
-        this.initModule()
+      // 删除子节点
+      remove(node, data) {
+        const parent = node.parent;
+        const children = parent.data.children || parent.data;
+        const index = children.findIndex(d => d.id === data.id);
+        children.splice(index, 1);
+      },
+
+      //点击节点
+      handleNodeClick(data) {
+        console.log("click node", data)
       }
 
     }
@@ -155,8 +212,31 @@ import ModuleDialog from './ModuleDialog.vue'
 }
 .foot-page {
   margin-top: 20px;
-    float: right;
-    margin-bottom: 20px;
+  float: right;
+  margin-bottom: 20px;
+  
 }
-
+.module-tree {
+  /* width: 200px; */
+  height: 600px;
+  float: left;
+  overflow: auto;
+}
+.node-create {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  text-align: left;
+  height: 28px;
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+.module-tree /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
+  display: inline;
+}
 </style>

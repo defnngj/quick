@@ -25,13 +25,12 @@ class ModuleSerializer(serializers.ModelSerializer):
 
 class ModuleValidator(serializers.Serializer):
     """
-    项目的验证器
+    模块的验证器
     """
     name = serializers.CharField(required=True, max_length=50,
                                  error_messages={"required": "name不能为空",
                                                  "invalid": "类型不对",
                                                  "max_length": "长度不能大于50"})
-    describe = serializers.CharField(required=False)
     project_id = serializers.IntegerField(required=True)
 
     def create(self, validated_data):

@@ -31,7 +31,7 @@
   import ModuleApi from '../../request/module'
 
   export default {
-    props: ['mid'],
+    props: ['mid', 'pid'],
     data(){
       return {
         showStatus: true,
@@ -55,6 +55,7 @@
     },
     created() {
       if (this.mid === 0) {
+        this.form.project_id = this.pid
         this.showTitle = "创建模块"
       } else {
         this.showTitle = "编辑模块"
