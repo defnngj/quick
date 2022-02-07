@@ -99,7 +99,7 @@ class NodeTreeView(BaseAPIView):
         """
         for node in nodes:
             if node["parent_id"] == current_node["id"]:
-                print("有子节点", current_node["lable"])
+                print("有子节点", current_node["label"])
                 return True
         return False
 
@@ -108,13 +108,8 @@ class NodeTreeView(BaseAPIView):
         获取节点树：父节点->子节点
         """
         pid = kwargs.get("pk", 1)
-        page = request.query_params.get("page", "1")
-        size = request.query_params.get("size", "10")
-
         module = Module.objects.filter(project_id=pid, is_delete=False).all()
-        pg = Pagination()
-        page_data = pg.paginate_queryset(queryset=module, request=request, view=self)
-        ser = NodeSerializer(instance=page_data, many=True)
+        ser = NodeSerializer(instance=module, many=True)
         
         nodes = ser.data
         data_node = []
@@ -122,7 +117,7 @@ class NodeTreeView(BaseAPIView):
             data_node.append({
                 "id": n["id"],
                 "parent_id": n["parent_id"],
-                "lable": n["name"],
+                "label": n["name"],
                 "children": [],
             })
 
@@ -135,14 +130,6 @@ class NodeTreeView(BaseAPIView):
                 ret = self.node_tree(data_node, n)
                 data.append(ret)
 
-
-        print("data", data)
-        data = {
-            "total": len(module),
-            "page": int(page),
-            "size": int(size),
-            "moduleList": data
-        }
         return self.response_success(data=data)
 
 
