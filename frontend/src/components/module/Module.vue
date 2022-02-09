@@ -49,7 +49,7 @@
         </el-tree>
       </div>
     </el-card>
-    <ModuleDialog v-if="showDailog" :mid=moduleId :pid=projectId @cancel="cancelModule"></ModuleDialog>
+    <ModuleDialog v-if="showDailog" :moduleid=moduleId :projectid=projectId :parentid=parentId  :parentnode=parentNode  @cancel="cancelModule"></ModuleDialog>
   </div>
 </template>
 
@@ -75,11 +75,11 @@ import ModuleDialog from './ModuleDialog.vue'
           size: 5,
         },
         projectId: 1,
+        parentId: 0,
+        parentNode: null,
         projectOptions: [],
         moduleData: [],
         switchTree: false,
-        
-
       }
     },
     created() {
@@ -175,16 +175,21 @@ import ModuleDialog from './ModuleDialog.vue'
       cancelModule() {
         this.showDailog = false
         this.moduleId = 0
+        this.parentId = 0
         this.initModuleTree()
       },
 
       // 添加子节点
       append(data) {
-        const newChild = { id: id++, label: 'testtest', children: [] };
-        if (!data.children) {
-          this.$set(data, 'children', []);
-        }
-        data.children.push(newChild);
+        console.log("data", data, id)
+        this.parentId = data.id
+        this.parentNode = data
+        this.showDailog = true
+        // const newChild = { id: id++, label: 'testtest', children: [] };
+        // if (!data.children) {
+        //   this.$set(data, 'children', []);
+        // }
+        // data.children.push(newChild);
       },
 
       // 删除子节点
@@ -198,6 +203,7 @@ import ModuleDialog from './ModuleDialog.vue'
       //点击节点
       handleNodeClick(data) {
         console.log("click node", data)
+        // this.parent_id = data.id
       }
 
     }

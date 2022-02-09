@@ -3,12 +3,17 @@
     <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelModule()">
       <el-form :rules="rules" ref="form" :model="form" label-width="80px">
         <el-form-item label="项目" prop="name">
-          <el-select v-model="form.project_id" placeholder="请选择项目" style="width: 100%">
+          <el-select v-model="form.project_id" placeholder="请选择项目" style="width: 100%" :disabled="true">
             <el-option v-for="item in projectOptions" :key="item.value" :label="item.label"
               :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
+        <div v-if="parentid !== 0">
+        <el-form-item label="父节点">
+          <el-input v-model="parentnode.label" :disabled="true"></el-input>
+        </el-form-item>
+        </div>
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
@@ -31,7 +36,7 @@
   import ModuleApi from '../../request/module'
 
   export default {
-    props: ['mid', 'pid'],
+    props: ['moduleid', 'projectid', 'parentid', 'parentnode'],
     data(){
       return {
         showStatus: true,
@@ -54,9 +59,13 @@
       }
     },
     created() {
-      if (this.mid === 0) {
-        this.form.project_id = this.pid
-        this.showTitle = "创建模块"
+      console.log("this.parentid", this.parentid)
+      if (this.moduleid === 0 && this.parentid === 0) {
+        this.form.project_id = this.projectid
+        this.showTitle = "创建根节点"
+      } else if (this.moduleid === 0 && this.parentid !== 0) {
+        this.form.project_id = this.projectid
+          this.showTitle = "创建节点"
       } else {
         this.showTitle = "编辑模块"
         this.getModule()
