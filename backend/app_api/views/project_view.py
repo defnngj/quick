@@ -17,7 +17,7 @@ class ProjectView(BaseAPIView):
         """
         查询
         """
-        pid = kwargs.get("pk")
+        pid = kwargs.get("pk", None)
         page = request.query_params.get("page", "1")
         size = request.query_params.get("size", "5")
         if pid is not None:  # 查询单条数据

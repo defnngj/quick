@@ -32,6 +32,7 @@ class ModuleValidator(serializers.Serializer):
                                                  "invalid": "类型不对",
                                                  "max_length": "长度不能大于50"})
     project_id = serializers.IntegerField(required=True)
+    parent_id = serializers.IntegerField(required=True)
 
     def create(self, validated_data):
         """
@@ -49,6 +50,7 @@ class ModuleValidator(serializers.Serializer):
         instance.name = validated_data.get("name")
         instance.describe = validated_data.get("describe")
         instance.project_id = validated_data.get("project_id")
+        instance.parent_id = validated_data.get("parent_id")
         instance.save()
         return instance
 

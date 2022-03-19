@@ -1,5 +1,7 @@
 from app_api.models import Module
+from app_api.models import TestCase
 from app_api.serializer.module import ModuleValidator, ModuleSerializer, NodeSerializer
+from app_api.serializer.case import CaseSerializer
 from app_common.utils.pagination import Pagination
 from app_common.utils.base_view import BaseAPIView
 
@@ -124,14 +126,35 @@ class NodeTreeView(BaseAPIView):
         data = []
         for n in data_node:
             is_chilerend = self.chileren_node(data_node, n)
-            if (n["parent_id"] == 0) and (is_chilerend == False):
+            if (n["parent_id"] == 0) and (is_chilerend is False):
                 data.append(n)
-            elif(n["parent_id"] == 0) and (is_chilerend == True):
+            elif(n["parent_id"] == 0) and (is_chilerend is True):
                 ret = self.node_tree(data_node, n)
                 data.append(ret)
 
         return self.response_success(data=data)
 
+
+class NodeCaseView(BaseAPIView):
+
+    def get(self, request, *args, **kwargs):
+        """
+        获取节点上的所有用例
+        """
+        mid = kwargs.get("pk", 1)
+        page = request.query_params.get("page", "1")
+        size = request.query_params.get("size", "5")
+        cases = TestCase.objects.filter(module_id=mid, is_delete=False).all()
+        pg = Pagination()
+        page_data = pg.paginate_queryset(queryset=cases, request=request, view=self)
+        ser = CaseSerializer(instance=page_data, many=True)
+        data = {
+            "total": len(cases),
+            "page": int(page),
+            "size": int(size),
+            "caseList": ser.data
+        }
+        return self.response_success(data=data)
 
 
 

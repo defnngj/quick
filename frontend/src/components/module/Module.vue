@@ -7,21 +7,28 @@
       </el-breadcrumb>
     </div>
     <el-card class="box-card">
-      <!-- 模块树 -->
+      <!-- 项目/模块树 -->
       <div class="module-tree">
-        <el-select v-model="projectId" filterable placeholder="选择项目" @change="selectProject">
-          <el-option
-            v-for="item in projectOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+        
+        <el-form label-width="80px" label-position="left">
+          <el-form-item label="切换项目">
+            <el-select v-model="projectId" filterable placeholder="选择项目" @change="selectProject">
+              <el-option
+                v-for="item in projectOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+
         <div class="node-create">
           <span style="float: right">
             <el-button type="text" plain size="mini" icon="el-icon-circle-plus-outline" @click="showCreate()">根节点</el-button>
           </span>
         </div>
+
         <el-tree
           :data="moduleData"
           show-checkbox
@@ -48,7 +55,59 @@
           </span>
         </el-tree>
       </div>
+
+      <div class="filter-line">
+        <el-button type="primary" @click="showDebug()"  size="small">创建</el-button>
+      </div>
+      <el-breadcrumb separator="/" class="case-breadcrumb">
+        <el-breadcrumb-item>{{ currentProjectName }}</el-breadcrumb-item>
+        <el-breadcrumb-item>... {{ currentModuleName }}</el-breadcrumb-item>
+
+      </el-breadcrumb>
+      <!-- 用例列表 -->
+      <div class="case-table">
+        <!-- 表格 -->
+         <el-table :data="caseData" v-loading="caseLoading" border>
+          <el-table-column prop="name" label="名称" min-width="20%">
+          </el-table-column>
+          <el-table-column prop="method" label="方法" min-width="10%">
+          </el-table-column>
+          <el-table-column prop="url" label="URL" min-width="30%">
+          </el-table-column>
+          <el-table-column prop="module_name" label="模块" min-width="15%">
+          </el-table-column>
+          <el-table-column prop="create_time" label="创建" min-width="20%">
+          </el-table-column>
+          <el-table-column fixed="right" label="操作" width="100">
+            <template slot-scope="scope">
+              <el-button @click="showEdit(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
+              <el-button @click="deleteModule(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页 -->
+        <!-- <div class="foot-page">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :page-sizes="[5, 10, 20, 50]" 
+            :page-size=query.size
+            background
+            layout="total, sizes, prev, pager, next"
+            :total=total>
+          </el-pagination>
+        </div> -->
+      </div>
+
+      <!-- 创建/编辑抽屉 -->
+      <el-drawer
+        title="我是标题"
+        :visible.sync="caseDrawer"
+        direction="rtl">
+        <span>我来啦!</span>
+      </el-drawer>
     </el-card>
+
     <ModuleDialog v-if="showDailog" :moduleid=moduleId :projectid=projectId :parentid=parentId  :parentnode=parentNode  @cancel="cancelModule"></ModuleDialog>
   </div>
 </template>
@@ -66,8 +125,11 @@ import ModuleDialog from './ModuleDialog.vue'
     data(){
       return {
         loading: false,
+        caseLoading: false,
+        currentProjectName: '',
+        currentModuleName: '',
         moduleId: 0,
-        tableData: [],
+        caseData: [],
         showDailog: false,
         total: 0,
         query: {
@@ -80,6 +142,8 @@ import ModuleDialog from './ModuleDialog.vue'
         projectOptions: [],
         moduleData: [],
         switchTree: false,
+        caseDrawer: false,
+        direction: 'rtl',
       }
     },
     created() {
@@ -110,12 +174,18 @@ import ModuleDialog from './ModuleDialog.vue'
         } else {
           this.$message.error(resp.error.message);
         }
+        await this.selectProject(this.projectId)
         this.loading = false
       },
 
       // 选择一个项目
       async selectProject(val) {
         this.projectId = val
+        for(let i = 0; i < this.projectOptions.length; i++) {
+          if (this.projectOptions[i].value == val) {
+            this.currentProjectName = this.projectOptions[i].label
+          } 
+        }
         await this.initModuleTree()
       },
 
@@ -168,7 +238,13 @@ import ModuleDialog from './ModuleDialog.vue'
             }
           })
           
-        })        
+        }) .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            }); 
+           this.initModuleTree()         
+        });      
       },
 
       // 子组件的回调
@@ -193,7 +269,10 @@ import ModuleDialog from './ModuleDialog.vue'
       },
 
       // 删除子节点
-      remove(node, data) {
+      async remove(node, data) {
+        console.log("node", node)
+        console.log("data", data.id)
+        await this.deleteModule(data)
         const parent = node.parent;
         const children = parent.data.children || parent.data;
         const index = children.findIndex(d => d.id === data.id);
@@ -204,6 +283,26 @@ import ModuleDialog from './ModuleDialog.vue'
       handleNodeClick(data) {
         console.log("click node", data)
         // this.parent_id = data.id
+        this.currentModuleName = data.label
+        this.getModuleCaseList(data.id)
+      },
+
+      // 初始化用例数据
+      async getModuleCaseList(mid) {
+        this.caseLoading = true
+        const query = { page: 1, size: 5}
+        const resp = await ModuleApi.getModuleCases(mid, query)
+        if (resp.success == true) {
+          this.caseData = resp.data.caseList
+          this.total = resp.data.total
+        } else {
+          this.$message.error(resp.error.message);
+        }
+        this.caseLoading = false
+      },
+
+      showDebug() {
+        this.caseDrawer = true
       }
 
     }
@@ -223,7 +322,8 @@ import ModuleDialog from './ModuleDialog.vue'
   
 }
 .module-tree {
-  /* width: 200px; */
+  width: 18%;
+  margin-right: 2%;
   height: 600px;
   float: left;
   overflow: auto;
@@ -244,5 +344,15 @@ import ModuleDialog from './ModuleDialog.vue'
 }
 .module-tree /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
   display: inline;
+}
+
+.case-breadcrumb {
+  float: left;
+  width: 80%;
+  margin-bottom: 10px;
+}
+.case-table {
+  float: left;
+  width: 80%;
 }
 </style>

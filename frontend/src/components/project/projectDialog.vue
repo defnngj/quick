@@ -1,6 +1,6 @@
 <template>
   <div class="project-dialog">
-    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelProject()">
+    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelProject()"  width="600px">
       <el-form v-if="inResize === true" :rules="rules" ref="form" :model="form" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input cy-data="project-name" v-model="form.name"></el-input>

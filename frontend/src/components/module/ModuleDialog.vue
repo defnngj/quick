@@ -1,6 +1,6 @@
 <template>
   <div class="project-dialog">
-    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelModule()">
+    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelModule()" width="600px">
       <el-form :rules="rules" ref="form" :model="form" label-width="80px">
         <el-form-item label="项目" prop="name">
           <el-select v-model="form.project_id" placeholder="请选择项目" style="width: 100%" :disabled="true">
@@ -46,6 +46,7 @@
           project_id: '',
           name: '',
           describe: '',
+          parent_id: 0,
         },
          rules: {
           name: [
@@ -65,7 +66,8 @@
         this.showTitle = "创建根节点"
       } else if (this.moduleid === 0 && this.parentid !== 0) {
         this.form.project_id = this.projectid
-          this.showTitle = "创建节点"
+        this.form.parent_id = this.parentid
+        this.showTitle = "创建子节点"
       } else {
         this.showTitle = "编辑模块"
         this.getModule()
@@ -113,7 +115,7 @@
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            if(this.mid === 0) {
+            if(this.moduleid === 0) {
               ModuleApi.createModule(this.form).then(resp => {
                 if (resp.success == true) {
                   this.$message.success("创建成功！")
@@ -123,7 +125,7 @@
                 }
               })
             } else {
-              ModuleApi.updateModule(this.mid, this.form).then(resp => {
+              ModuleApi.updateModule(this.moduleid, this.form).then(resp => {
                 if (resp.success == true) {
                   this.$message.success("更新成功！")
                   this.cancelModule()
