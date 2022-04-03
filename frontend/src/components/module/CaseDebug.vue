@@ -1,17 +1,18 @@
 <template>
-  <div>
+  <div style="margin-left: 10px;
+    margin-right: 10px;">
     <!-- 调试表单 -->
     <div class="div-line" style="height: 50px;">
-      <span style="width: 10%; float: left;">
+      <span style="width: 15%; float: left;">
         <el-select v-model="api.method" placeholder="请求方法"  style="width: 100%">
           <el-option v-for="item in methods" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
       </span>
-      <span style="width: 80%; float: left;">
+      <span style="width: 70%; float: left;">
         <el-input v-model="api.url" placeholder="请输入接口"></el-input>
       </span>
-      <span style="width: 10%; float: left;">
+      <span style="width: 15%; float: left;">
         <el-button type="primary" @click="clickSend()">发送</el-button>
       </span>
     </div>
@@ -34,7 +35,7 @@
     </div>
     <div class="div-line">
       <el-input type="textarea"
-        :rows="5"
+        :rows="8"
         placeholder="Response"
         v-model="api.result">
       </el-input>
@@ -60,35 +61,12 @@
           </el-input>
         </el-collapse-item>
 
-        <el-collapse-item title="保存用例" name="2">
-          <div class="dev-line" style="margin-bottom: 10px;">
-            <el-select v-model="api.project_id" placeholder="请选择项目" @change="chanageProject()">
-              <el-option
-                v-for="(item, index) in projectOptions"
-                :key="index"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-            <el-select v-model="api.module_id" placeholder="请选择模块">
-              <el-option
-                v-for="item in moduleOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </div>
-          <div class="dev-line">
-            <span style="width: 80%; float: left; margin-right: 10px;">
-              <el-input v-model="api.name" placeholder="请输入名称"></el-input>
-            </span>
-            <span style="width: 15%; float: left;">
-              <el-button type="danger" @click="saveCase()">保存</el-button>
-            </span>
-          </div>
-        </el-collapse-item>       
       </el-collapse>
+
+      <div style="margin-top: 30px;">
+        <el-button type="success" @click="saveCase()">保存</el-button>
+      </div>
+
     </div>
   </div>
 </template>

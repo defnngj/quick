@@ -101,10 +101,10 @@
 
       <!-- 创建/编辑抽屉 -->
       <el-drawer
-        title="我是标题"
+        title="创建用例"
         :visible.sync="caseDrawer"
         direction="rtl">
-        <span>我来啦!</span>
+        <CaseDebug :cid=caseId></CaseDebug>
       </el-drawer>
     </el-card>
 
@@ -116,11 +116,14 @@
 import ProjectApi from '../../request/project'
 import ModuleApi from '../../request/module'
 import ModuleDialog from './ModuleDialog.vue'
+import CaseDebug from './CaseDebug.vue'
+
   let id = 1000;
 
   export default {
     components: {
-      ModuleDialog
+      ModuleDialog,
+      CaseDebug
     },
     data(){
       return {
@@ -144,6 +147,7 @@ import ModuleDialog from './ModuleDialog.vue'
         switchTree: false,
         caseDrawer: false,
         direction: 'rtl',
+        caseId: 0
       }
     },
     created() {
