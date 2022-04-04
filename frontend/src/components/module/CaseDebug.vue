@@ -63,8 +63,13 @@
 
       </el-collapse>
 
-      <div style="margin-top: 30px;">
-        <el-button type="success" @click="saveCase()">保存</el-button>
+      <div class="div-line" style="height: 50px; margin-top: 30px;">
+        <span style="width: 80%; float: left;">
+          <el-input v-model="api.name" placeholder="请输入名称"></el-input>
+        </span>
+        <span style="float: right;">
+          <el-button type="success" @click="saveCase()">保存</el-button>
+        </span>
       </div>
 
     </div>
@@ -80,7 +85,7 @@ import vueJsonEditor from 'vue-json-editor'
     components: {
       vueJsonEditor
     },
-    props: ['cid'],
+    props: ['mid', 'cid'],
     data(){
       return {
         methods:[
@@ -109,15 +114,16 @@ import vueJsonEditor from 'vue-json-editor'
       }
     },
     created() {
+      this.api.module_id = this.mid
       if (this.cid !== 0) {
         this.initCaseInfo()
       } else {
         this.api = {
           method: 'GET',
           url: 'http://httpbin.org/get',
-          header: {},
+          header: {"token": "123"},
           params_type: 'params',
-          params_body: {},
+          params_body: {"hello": "world"},
           result: '',
           assert_type: 'include',
           assert_text: '',
@@ -158,6 +164,7 @@ import vueJsonEditor from 'vue-json-editor'
         }
         const resp = await CaseApi.debugCase(req)
         if (resp.success == true) {
+          this.$message.success("发送成功")
           this.api.result = resp.data
         } else {
           this.$message.error(resp.error.message)
@@ -226,22 +233,38 @@ import vueJsonEditor from 'vue-json-editor'
           return
         }
 
-        // data to JSON
-        this.api.header = JSON.stringify(this.api.header)
-        this.api.params_body = JSON.stringify(this.api.params_body)
-        this.api.result = JSON.stringify(this.api.result)
-        const resp = await CaseApi.createCase(this.api)
+        var assertText = this.api.assert_text
+        if (this.api.assert_type == 'equal') {
+          assertText = JSON.stringify(this.api.assert_text)
+        }
+
+        const req = {
+          name: this.api.name,
+          module_id: this.mid,
+          method: this.api.method,
+          url: this.api.url,
+          header: JSON.stringify(this.api.header),
+          params_type: this.api.params_type,
+          params_body: JSON.stringify(this.api.params_body),
+          result: JSON.stringify(this.api.result),
+          assert_type: this.api.assert_type,
+          assert_text: assertText,
+        }
+
+        const resp = await CaseApi.createCase(req)        
         if(resp.success == true) {
-           // JSON to data
-          this.api.header = JSON.parse(this.api.header)
-          this.api.params_body = JSON.parse(this.api.params_body)
-          this.api.result = JSON.parse(this.api.result)
           this.$message.success('创建用例成功')
+          this.saveCaseSuccess()
         } else {
           this.$message.error(resp.error.message)
         }
 
-      }
+      },
+
+      // 保存用例
+      saveCaseSuccess() {
+        this.$emit('cancel', {})
+      },
 
     }
   }

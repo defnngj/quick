@@ -104,7 +104,7 @@
         title="创建用例"
         :visible.sync="caseDrawer"
         direction="rtl">
-        <CaseDebug :cid=caseId></CaseDebug>
+        <CaseDebug :cid=caseId :mid=moduleId  @cancel="cancelCase"></CaseDebug>
       </el-drawer>
     </el-card>
 
@@ -147,7 +147,8 @@ import CaseDebug from './CaseDebug.vue'
         switchTree: false,
         caseDrawer: false,
         direction: 'rtl',
-        caseId: 0
+        caseId: 0,
+        currentNodeData: null,
       }
     },
     created() {
@@ -251,7 +252,7 @@ import CaseDebug from './CaseDebug.vue'
         });      
       },
 
-      // 子组件的回调
+      // 模块子组件的回调
       cancelModule() {
         this.showDailog = false
         this.moduleId = 0
@@ -285,7 +286,9 @@ import CaseDebug from './CaseDebug.vue'
 
       //点击节点
       handleNodeClick(data) {
+        this.currentNodeData = data
         console.log("click node", data)
+        this.moduleId = data.id
         // this.parent_id = data.id
         this.currentModuleName = data.label
         this.getModuleCaseList(data.id)
@@ -306,8 +309,17 @@ import CaseDebug from './CaseDebug.vue'
       },
 
       showDebug() {
+        if(this.moduleId == 0) {
+          this.$message.error("请选择模块")
+          return
+        }
         this.caseDrawer = true
-      }
+      },
+
+      // 用例子组件的回调
+      cancelCase() {
+        this.handleNodeClick(this.currentNodeData)
+      },
 
     }
 
