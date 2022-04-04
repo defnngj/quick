@@ -139,7 +139,7 @@ class CaseViewSet(BaseViewSet):
             if params_type == ParamsType.json:
                 ret_text = requests.delete(url, headers=header, json=params_body)
 
-        return self.response_success(data=ret_text)
+        return self.response_success(data=ret_text.text)
 
     @action(methods=["post"], detail=False, url_path="assert")
     def assert_case(self, request, *args, **kwargs):

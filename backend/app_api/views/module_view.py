@@ -94,8 +94,9 @@ class NodeTreeView(BaseAPIView):
                 self.node_tree(nodes, node)
 
         return current_node
-    
-    def chileren_node(self, nodes, current_node):
+
+    @staticmethod
+    def child_node(nodes, current_node):
         """
         判断有没有子节点
         """
@@ -125,10 +126,10 @@ class NodeTreeView(BaseAPIView):
 
         data = []
         for n in data_node:
-            is_chilerend = self.chileren_node(data_node, n)
-            if (n["parent_id"] == 0) and (is_chilerend is False):
+            is_child = self.child_node(data_node, n)
+            if (n["parent_id"] == 0) and (is_child is False):
                 data.append(n)
-            elif(n["parent_id"] == 0) and (is_chilerend is True):
+            elif(n["parent_id"] == 0) and (is_child is True):
                 ret = self.node_tree(data_node, n)
                 data.append(ret)
 
