@@ -58,6 +58,18 @@ class BaseView:
             return None
         return ret
 
+    def check_header_type(self, data: dict) -> bool:
+        """
+        check header type, Value must be a string
+        """
+        ret = True
+        for d in data:
+            print("h", data[d])
+            if isinstance(data[d], str) is False:
+                ret = False
+                break
+        return ret
+
 
 class BaseAPIView(APIView, BaseView, Error):
     """

@@ -110,6 +110,9 @@ class CaseViewSet(BaseViewSet):
         if header is None:
             return self.response_success(error=self.JSON_TYPE_ERROR)
 
+        if self.check_header_type(header) is False:
+            return self.response_success(error=self.CASE_HEADER_ERROR)
+
         params_body = self.json_to_dict(params_body)
         if params_body is None:
             return self.response_success(error=self.JSON_TYPE_ERROR)
