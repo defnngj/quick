@@ -121,7 +121,6 @@ import vueJsonEditor from 'vue-json-editor'
           result: '',
           assert_type: 'include',
           assert_text: '',
-          project_id: '',
           module_id: '',
           name: ''
         }
@@ -150,34 +149,37 @@ import vueJsonEditor from 'vue-json-editor'
           return
         }
         // data to JSON
-        this.api.header = JSON.stringify(this.api.header)
-        this.api.params_body = JSON.stringify(this.api.params_body)
-        const resp = await CaseApi.debugCase(this.api)
+        const req = {
+          method: this.api.method,
+          url: this.api.url,
+          header: JSON.stringify(this.api.header),
+          params_type: this.api.params_type,
+          params_body: JSON.stringify(this.api.params_body),
+        }
+        const resp = await CaseApi.debugCase(req)
         if (resp.success == true) {
           this.api.result = resp.data
-          // JSON to data
-          this.api.header = JSON.parse(this.api.header)
-          this.api.params_body = JSON.parse(this.api.params_body)
         } else {
           this.$message.error(resp.error.message)
-        }        
+        }       
       },
 
       // 断言
       async clickAssert() {
-        this.api.result = JSON.stringify(this.api.result)
+        var assertText = this.api.assert_text
         if (this.api.assert_type == 'equal') {
-          this.api.assert_text = JSON.stringify(this.api.assert_text)
+          assertText = JSON.stringify(this.api.assert_text)
         }
-        const resp = await CaseApi.assertCase(this.api)
+        const req = {
+          result: JSON.stringify(this.api.result),
+          assert_type: this.api.assert_type,
+          assert_text: assertText
+        }
+        const resp = await CaseApi.assertCase(req)
         if (resp.success == true) {
           this.$message.success('断言成功')
         } else {
           this.$message.error(resp.error.message)
-        }
-        this.api.result = JSON.parse(this.api.result)
-        if (this.api.assert_type == 'equal') {
-          this.api.assert_text = JSON.parse(this.api.assert_text)
         }
       },
 
