@@ -62,9 +62,9 @@ class CaseViewSet(BaseViewSet):
     def update_case(self, request, *args, **kwargs):
         """
         更新一条用例
-        api/v1/case/<pk>/update
+        api/v1/case/<pk>/update/
         """
-        cid = request.data.get("id")
+        cid = kwargs.get("pk")
         if cid is None:
             return self.response_success(error=self.CASE_ID_NULL)
         case = TestCase.objects.get(pk=cid, is_delete=False)

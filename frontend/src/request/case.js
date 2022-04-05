@@ -19,7 +19,7 @@ class CaseApi {
   }
 
   deleteCase(cid) {
-    return request.delete('/v1/case/'+cid+'/')
+    return request.delete('/v1/case/'+cid+'/delete/')
   }
 
   createCase(data) {
@@ -27,7 +27,7 @@ class CaseApi {
   }
 
   updateCase(cid, data) {
-    return request.put('/v1/case/'+cid+'/', data)
+    return request.put('/v1/case/'+cid+'/update/', data)
   }
 
   getCaseTree() {
