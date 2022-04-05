@@ -102,7 +102,6 @@ class NodeTreeView(BaseAPIView):
         """
         for node in nodes:
             if node["parent_id"] == current_node["id"]:
-                print("有子节点", current_node["label"])
                 return True
         return False
 

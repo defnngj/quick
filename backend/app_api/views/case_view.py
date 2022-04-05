@@ -175,7 +175,6 @@ class CaseViewSet(BaseViewSet):
         projects = Project.objects.filter(is_delete=False)
         data = []
         for project in projects:
-            print("project", project.name)
             project_info = {
                 "label": project.name,
                 "children": []
