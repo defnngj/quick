@@ -4,6 +4,7 @@
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item>模块管理</el-breadcrumb-item>
+        <el-breadcrumb-item>用例管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <el-card class="box-card">
@@ -26,9 +27,9 @@
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <div class="node-create">
-              <span>模块管理</span>
+              <span>模块列表</span>
               <span style="float: right">
-                <el-button type="text" plain size="mini" icon="el-icon-circle-plus-outline" @click="showCreate()">根节点</el-button>
+                <el-button type="text" size="mini" icon="el-icon-circle-plus-outline" @click="showCreate()">根节点</el-button>
               </span>
             </div>
           </div>
@@ -61,7 +62,7 @@
       </div>
 
       <div class="filter-line">
-        <el-button type="primary" @click="createDebug()"  size="small">创建</el-button>
+        <el-button type="primary" @click="createCase()"  size="small">创建</el-button>
       </div>
       <el-breadcrumb separator="/" class="case-breadcrumb">
         <el-breadcrumb-item>{{ currentProjectName }}</el-breadcrumb-item>
@@ -71,7 +72,7 @@
       <!-- 用例列表 -->
       <div class="case-table">
         <!-- 表格 -->
-         <el-table :data="caseData" v-loading="caseLoading" border @row-click="editDebug">
+         <el-table :data="caseData" v-loading="caseLoading" border @row-click="editCase">
           <el-table-column prop="name" label="名称" min-width="20%">
           </el-table-column>
           <el-table-column prop="method" label="方法" min-width="10%">
@@ -80,9 +81,9 @@
           </el-table-column>
           <el-table-column prop="module_name" label="模块" min-width="15%">
           </el-table-column>
-          <el-table-column prop="create_time" label="创建" min-width="20%">
+          <el-table-column prop="create_time" label="创建" min-width="15%">
           </el-table-column>
-          <el-table-column fixed="right" label="操作" width="100">
+          <el-table-column fixed="right" label="操作" min-width="10%">
             <template slot-scope="scope">
               <el-button type="danger" size="mini" circle icon="el-icon-delete"
                 @click="deleteCase(scope.row)" 
@@ -112,11 +113,11 @@
         direction="rtl"
         @open="openDrawer"
         @close="closeDrawer">
-        <CaseDebug v-if="showCaseInfo" :cid=caseId :mid=moduleId  @cancel="cancelCase"></CaseDebug>
+        <CaseDialog v-if="showCaseInfo" :cid=caseId :mid=moduleId  @cancel="cancelCase"></CaseDialog>
       </el-drawer>
     </el-card>
 
-    <ModuleDialog v-if="showDailog" :moduleid=moduleId :projectid=projectId :parentid=parentId  :parentnode=parentNode  @cancel="cancelModule"></ModuleDialog>
+    <ModuleDialog v-if="showModuleDailog" :moduleid=moduleId :projectid=projectId :parentid=parentId  :parentnode=parentNode  @cancel="cancelModule"></ModuleDialog>
   </div>
 </template>
 
@@ -125,14 +126,14 @@ import ProjectApi from '../../request/project'
 import ModuleApi from '../../request/module'
 import CaseApi from '../../request/case'
 import ModuleDialog from './ModuleDialog.vue'
-import CaseDebug from './CaseDebug.vue'
+import CaseDialog from './CaseDialog.vue'
 
-  let id = 1000;
+  // let id = 1000;
 
   export default {
     components: {
       ModuleDialog,
-      CaseDebug
+      CaseDialog
     },
     data(){
       return {
@@ -142,7 +143,7 @@ import CaseDebug from './CaseDebug.vue'
         currentModuleName: '',
         moduleId: 0,
         caseData: [],
-        showDailog: false,
+        showModuleDailog: false,
         total: 0,
         query: {
           page: 1,
@@ -219,12 +220,11 @@ import CaseDebug from './CaseDebug.vue'
 
       // 添加根节点
       showCreate() {
-        this.showDailog = true
+        this.showModuleDailog = true
       },
 
       // 展开收起节点
       switchNode() {
-        console.log("switchNode", this.switchTree)
         if (this.switchTree === false) {
           this.switchTree = true
         } else {
@@ -235,7 +235,7 @@ import CaseDebug from './CaseDebug.vue'
       // 显示编辑窗口
       showEdit(row) {
         this.moduleId = row.id
-        this.showDailog = true
+        this.showModuleDailog = true
       },
 
       // 删除一条模块（节点）信息
@@ -291,7 +291,7 @@ import CaseDebug from './CaseDebug.vue'
 
       // 模块子组件的回调
       cancelModule() {
-        this.showDailog = false
+        this.showModuleDailog = false
         this.moduleId = 0
         this.parentId = 0
         this.initModuleTree()
@@ -299,10 +299,9 @@ import CaseDebug from './CaseDebug.vue'
 
       // 添加子节点
       append(data) {
-        console.log("data", data, id)
         this.parentId = data.id
         this.parentNode = data
-        this.showDailog = true
+        this.showModuleDailog = true
       },
 
       // 删除子节点
@@ -337,16 +336,17 @@ import CaseDebug from './CaseDebug.vue'
         this.caseLoading = false
       },
 
-      createDebug() {
+      createCase() {
         if(this.moduleId == 0) {
           this.$message.error("请选择模块")
           return
         }
+        this.caseTitle = "创建用例"
         this.caseId = 0
         this.caseDrawer = true
       },
       
-      editDebug(row) {
+      editCase(row) {
         this.caseTitle = "用例详情"
         this.caseId = row.id
         this.caseDrawer = true

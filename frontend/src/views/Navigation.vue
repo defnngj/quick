@@ -21,15 +21,15 @@
           <router-link to="/main/module">
             <el-menu-item index="2">
               <i class="el-icon-s-grid"></i>
-              <span slot="title">模块管理</span>
+              <span slot="title">用例管理</span>
             </el-menu-item>
           </router-link>
-          <router-link to="/main/case">
+          <!-- <router-link to="/main/case">
             <el-menu-item index="3">
               <i class="el-icon-s-data"></i>
               <span slot="title">用例管理</span>
             </el-menu-item>
-          </router-link>
+          </router-link> -->
           <router-link to="/main/task">
             <el-menu-item index="4">
               <i class="el-icon-s-order"></i>

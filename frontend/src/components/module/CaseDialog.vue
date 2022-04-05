@@ -194,12 +194,10 @@ import vueJsonEditor from 'vue-json-editor'
           this.$message.error('名称不能为空')
           return
         }
-
         var assertText = this.api.assert_text
         if (this.api.assert_type == 'equal') {
           assertText = JSON.stringify(this.api.assert_text)
         }
-
         const req = {
           name: this.api.name,
           module_id: this.mid,
@@ -212,7 +210,6 @@ import vueJsonEditor from 'vue-json-editor'
           assert_type: this.api.assert_type,
           assert_text: assertText,
         }
-
         if(this.cid == 0) {
           const resp = await CaseApi.createCase(req)
           if(resp.success == true) {
@@ -230,9 +227,6 @@ import vueJsonEditor from 'vue-json-editor'
             this.$message.error(resp.error.message)
           }
         }
-        
-        
-
       },
 
       // 保存用例
