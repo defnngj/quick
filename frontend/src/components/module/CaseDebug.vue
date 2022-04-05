@@ -78,7 +78,6 @@
 
 <script>
 import CaseApi from '../../request/case'
-import ProjectApi from '../../request/project'
 import vueJsonEditor from 'vue-json-editor'
 
   export default {
@@ -134,18 +133,14 @@ import vueJsonEditor from 'vue-json-editor'
     },
     mounted() {},
     methods: {
-      handleChange(val) {
-        console.log("val", val)
-        this.getProjectList()
-      },
 
       // 初始化用例信息
       async initCaseInfo() {
         let resp = await CaseApi.getCase(this.cid)
         this.api = resp.data
+        this.api.header = JSON.parse(this.api.header)
+        this.api.params_body = JSON.parse(this.api.params_body)
         this.api.result = JSON.parse(this.api.result)
-        this.chanageProject()
-        this.api.module_id = this.api.module_id.toString()
       },
 
       // 点击发送
@@ -190,39 +185,6 @@ import vueJsonEditor from 'vue-json-editor'
         }
       },
 
-      // 获取项目列表
-      async getProjectList() {
-        const query = {page: 1, size: 1000}
-        const resp = await ProjectApi.getProjects(query)
-        if (resp.success == true) {
-          const ProjectList = resp.data.projectList
-          for(let i=0; i < ProjectList.length; i++) {
-            this.projectOptions.push({
-              value: ProjectList[i].id.toString(),
-              label: ProjectList[i].name,
-            })
-          }
-        } else {
-          this.$message.error(resp.error.message);
-        }
-        this.loading = false
-      },
-
-      async chanageProject() {
-        this.moduleOptions = []
-        const query = {page: 1, size: 1000}
-        const resp = await ProjectApi.getModules(this.api.project_id, query)
-        if (resp.success == true) {
-          const ModuleList = resp.data.moduleList
-          for(let i=0; i < ModuleList.length; i++) {
-            this.moduleOptions.push({
-              value: ModuleList[i].id.toString(),
-              label: ModuleList[i].name,
-            })
-          }
-        }
-      },
-
       async saveCase() {
         if(this.api.url == '') {
           this.$message.error('url不能为空')
@@ -251,13 +213,25 @@ import vueJsonEditor from 'vue-json-editor'
           assert_text: assertText,
         }
 
-        const resp = await CaseApi.createCase(req)        
-        if(resp.success == true) {
-          this.$message.success('创建用例成功')
-          this.saveCaseSuccess()
+        if(this.cid == 0) {
+          const resp = await CaseApi.createCase(req)
+          if(resp.success == true) {
+            this.$message.success('创建用例成功')
+            this.saveCaseSuccess()
+          } else {
+            this.$message.error(resp.error.message)
+          }
         } else {
-          this.$message.error(resp.error.message)
+          const resp = await CaseApi.updateCase(this.cid, req)
+          if(resp.success == true) {
+            this.$message.success('更新用例成功')
+            this.saveCaseSuccess()
+          } else {
+            this.$message.error(resp.error.message)
+          }
         }
+        
+        
 
       },
 

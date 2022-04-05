@@ -23,51 +23,55 @@
           </el-form-item>
         </el-form>
 
-        <div class="node-create">
-          <span style="float: right">
-            <el-button type="text" plain size="mini" icon="el-icon-circle-plus-outline" @click="showCreate()">根节点</el-button>
-          </span>
-        </div>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <div class="node-create">
+              <span>模块管理</span>
+              <span style="float: right">
+                <el-button type="text" plain size="mini" icon="el-icon-circle-plus-outline" @click="showCreate()">根节点</el-button>
+              </span>
+            </div>
+          </div>
 
-        <el-tree
-          :data="moduleData"
-          show-checkbox
-          node-key="id"
-          :default-expand-all="switchTree"
-          :expand-on-click-node="false"
-          @node-click="handleNodeClick">
-          <span class="custom-tree-node" slot-scope="{ node, data }">
-            <span>{{ node.label }}</span>
-            <span>
-              <el-button
-                type="text"
-                size="mini"
-                @click="() => append(data)"
-                icon="el-icon-circle-plus-outline">
-              </el-button>
-              <el-button
-                type="text"
-                size="mini"
-                @click="() => remove(node, data)"
-                icon="el-icon-delete">
-              </el-button>
+          <el-tree
+            :data="moduleData"
+            node-key="id"
+            :default-expand-all="switchTree"
+            :expand-on-click-node="false"
+            @node-click="handleNodeClick">
+            <span class="custom-tree-node" slot-scope="{ node, data }">
+              <span>{{ node.label }}</span>
+              <span>
+                <el-button
+                  type="text"
+                  size="mini"
+                  @click="() => append(data)"
+                  icon="el-icon-circle-plus-outline">
+                </el-button>
+                <el-button
+                  type="text"
+                  size="mini"
+                  @click="() => remove(node, data)"
+                  icon="el-icon-delete">
+                </el-button>
+              </span>
             </span>
-          </span>
-        </el-tree>
+          </el-tree>
+        </el-card>
       </div>
 
       <div class="filter-line">
-        <el-button type="primary" @click="showDebug()"  size="small">创建</el-button>
+        <el-button type="primary" @click="createDebug()"  size="small">创建</el-button>
       </div>
       <el-breadcrumb separator="/" class="case-breadcrumb">
         <el-breadcrumb-item>{{ currentProjectName }}</el-breadcrumb-item>
-        <el-breadcrumb-item>... {{ currentModuleName }}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ currentModuleName }}</el-breadcrumb-item>
 
       </el-breadcrumb>
       <!-- 用例列表 -->
       <div class="case-table">
         <!-- 表格 -->
-         <el-table :data="caseData" v-loading="caseLoading" border>
+         <el-table :data="caseData" v-loading="caseLoading" border @row-click="editDebug">
           <el-table-column prop="name" label="名称" min-width="20%">
           </el-table-column>
           <el-table-column prop="method" label="方法" min-width="10%">
@@ -80,8 +84,10 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="100">
             <template slot-scope="scope">
-              <el-button @click="showEdit(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
-              <el-button @click="deleteModule(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
+              <el-button type="danger" size="mini" circle icon="el-icon-delete"
+                @click="deleteCase(scope.row)" 
+                @click.stop="caseDrawer = false">
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -101,10 +107,12 @@
 
       <!-- 创建/编辑抽屉 -->
       <el-drawer
-        title="创建用例"
+        :title="caseTitle"
         :visible.sync="caseDrawer"
-        direction="rtl">
-        <CaseDebug :cid=caseId :mid=moduleId  @cancel="cancelCase"></CaseDebug>
+        direction="rtl"
+        @open="openDrawer"
+        @close="closeDrawer">
+        <CaseDebug v-if="showCaseInfo" :cid=caseId :mid=moduleId  @cancel="cancelCase"></CaseDebug>
       </el-drawer>
     </el-card>
 
@@ -115,6 +123,7 @@
 <script>
 import ProjectApi from '../../request/project'
 import ModuleApi from '../../request/module'
+import CaseApi from '../../request/case'
 import ModuleDialog from './ModuleDialog.vue'
 import CaseDebug from './CaseDebug.vue'
 
@@ -146,9 +155,11 @@ import CaseDebug from './CaseDebug.vue'
         moduleData: [],
         switchTree: false,
         caseDrawer: false,
+        showCaseInfo: false,
         direction: 'rtl',
         caseId: 0,
         currentNodeData: null,
+        caseTitle: "创建用例",
       }
     },
     created() {
@@ -227,7 +238,7 @@ import CaseDebug from './CaseDebug.vue'
         this.showDailog = true
       },
 
-      // 删除一条项目信息
+      // 删除一条模块（节点）信息
       async deleteModule(row) {
         this.$confirm('是否要删除模块?', '提示', {
           confirmButtonText: '确定',
@@ -238,6 +249,32 @@ import CaseDebug from './CaseDebug.vue'
             if (resp.success == true) {
               this.$message.success("删除成功！")
               this.initModuleTree()
+            } else {
+              this.$message.error("删除失败");
+            }
+          })
+          
+        }) .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            }); 
+           this.initModuleTree()         
+        });      
+      },
+
+      // 删除用例
+      async deleteCase(row) {
+        this.caseDrawer = false
+        this.$confirm('是否要删除用例?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          CaseApi.deleteCase(row.id).then(resp =>{
+            if (resp.success == true) {
+              this.$message.success("删除成功！")
+              this.getModuleCaseList(this.moduleId)
             } else {
               this.$message.error("删除失败");
             }
@@ -266,17 +303,10 @@ import CaseDebug from './CaseDebug.vue'
         this.parentId = data.id
         this.parentNode = data
         this.showDailog = true
-        // const newChild = { id: id++, label: 'testtest', children: [] };
-        // if (!data.children) {
-        //   this.$set(data, 'children', []);
-        // }
-        // data.children.push(newChild);
       },
 
       // 删除子节点
       async remove(node, data) {
-        console.log("node", node)
-        console.log("data", data.id)
         await this.deleteModule(data)
         const parent = node.parent;
         const children = parent.data.children || parent.data;
@@ -287,7 +317,6 @@ import CaseDebug from './CaseDebug.vue'
       //点击节点
       handleNodeClick(data) {
         this.currentNodeData = data
-        console.log("click node", data)
         this.moduleId = data.id
         // this.parent_id = data.id
         this.currentModuleName = data.label
@@ -308,17 +337,35 @@ import CaseDebug from './CaseDebug.vue'
         this.caseLoading = false
       },
 
-      showDebug() {
+      createDebug() {
         if(this.moduleId == 0) {
           this.$message.error("请选择模块")
           return
         }
+        this.caseId = 0
+        this.caseDrawer = true
+      },
+      
+      editDebug(row) {
+        this.caseTitle = "用例详情"
+        this.caseId = row.id
         this.caseDrawer = true
       },
 
       // 用例子组件的回调
       cancelCase() {
         this.handleNodeClick(this.currentNodeData)
+        this.caseDrawer = false
+      },
+
+      // 打开抽屉
+      openDrawer() {
+        this.showCaseInfo = true
+      },
+
+      // 关闭抽屉
+      closeDrawer() {
+        this.showCaseInfo = false
       },
 
     }
