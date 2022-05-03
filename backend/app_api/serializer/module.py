@@ -2,7 +2,6 @@ from rest_framework import serializers
 from app_api.models import Module
 
 
-
 class NodeSerializer(serializers.ModelSerializer):
     """
     模块树节点序列化

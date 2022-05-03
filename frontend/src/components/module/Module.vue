@@ -24,7 +24,7 @@
           </el-form-item>
         </el-form>
 
-        <el-card class="box-card">
+        <el-card style="height: 500px;">
           <div slot="header" class="clearfix">
             <div class="node-create">
               <span>模块列表</span>
@@ -73,16 +73,12 @@
       <div class="case-table">
         <!-- 表格 -->
          <el-table :data="caseData" v-loading="caseLoading" border @row-click="editCase">
-          <el-table-column prop="name" label="名称" min-width="20%">
-          </el-table-column>
-          <el-table-column prop="method" label="方法" min-width="10%">
-          </el-table-column>
-          <el-table-column prop="url" label="URL" min-width="30%">
-          </el-table-column>
-          <el-table-column prop="module_name" label="模块" min-width="15%">
-          </el-table-column>
-          <el-table-column prop="create_time" label="创建" min-width="15%">
-          </el-table-column>
+           <el-table-column prop="id" label="ID" min-width="5%"> </el-table-column>
+          <el-table-column prop="name" label="名称" min-width="20%"> </el-table-column>
+          <el-table-column prop="method" label="方法" min-width="10%"> </el-table-column>
+          <el-table-column prop="url" label="URL" min-width="30%"> </el-table-column>
+          <el-table-column prop="module_name" label="模块" min-width="15%"> </el-table-column>
+          <el-table-column prop="create_time" label="创建" min-width="15%"> </el-table-column>
           <el-table-column fixed="right" label="操作" min-width="10%">
             <template slot-scope="scope">
               <el-button type="danger" size="mini" circle icon="el-icon-delete"
@@ -209,7 +205,7 @@ import CaseDialog from './CaseDialog.vue'
       // 初始化模块树
       async initModuleTree() {
         this.loading = true
-        const resp = await ModuleApi.getModuleTree(this.projectId)
+        const resp = await ProjectApi.getModuleTree(this.projectId)
         if (resp.success == true) {
           this.moduleData = JSON.parse(JSON.stringify(resp.data))
         } else {

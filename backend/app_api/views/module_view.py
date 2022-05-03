@@ -82,59 +82,6 @@ class ModuleView(BaseAPIView):
         return self.response_success()
 
 
-class NodeTreeView(BaseAPIView):
-
-    def node_tree(self, nodes, current_node):
-        """
-        递归：获取节点的子节点
-        """
-        for node in nodes:
-            if node["parent_id"] == current_node["id"]:
-                current_node["children"].append(node)
-                self.node_tree(nodes, node)
-
-        return current_node
-
-    @staticmethod
-    def child_node(nodes, current_node):
-        """
-        判断有没有子节点
-        """
-        for node in nodes:
-            if node["parent_id"] == current_node["id"]:
-                return True
-        return False
-
-    def get(self, request,  *args, **kwargs):
-        """
-        获取节点树：父节点->子节点
-        """
-        pid = kwargs.get("pk", 1)
-        module = Module.objects.filter(project_id=pid, is_delete=False).all()
-        ser = NodeSerializer(instance=module, many=True)
-        
-        nodes = ser.data
-        data_node = []
-        for n in nodes:
-            data_node.append({
-                "id": n["id"],
-                "parent_id": n["parent_id"],
-                "label": n["name"],
-                "children": [],
-            })
-
-        data = []
-        for n in data_node:
-            is_child = self.child_node(data_node, n)
-            if (n["parent_id"] == 0) and (is_child is False):
-                data.append(n)
-            elif(n["parent_id"] == 0) and (is_child is True):
-                ret = self.node_tree(data_node, n)
-                data.append(ret)
-
-        return self.response_success(data=data)
-
-
 class NodeCaseView(BaseAPIView):
 
     def get(self, request, *args, **kwargs):
@@ -155,16 +102,5 @@ class NodeCaseView(BaseAPIView):
             "caseList": ser.data
         }
         return self.response_success(data=data)
-
-
-
-
-
-
-
-
-
-
-
 
 

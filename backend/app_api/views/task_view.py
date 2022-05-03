@@ -40,9 +40,10 @@ class TaskViewSet(BaseViewSet):
         获取任务列表
         api/v1/task/list
         """
+        project = request.query_params.get("project")
         page = request.query_params.get("page", "1")
         size = request.query_params.get("size", "5")
-        tasks = TestTask.objects.filter(is_delete=False).all()
+        tasks = TestTask.objects.filter(project_id=project, is_delete=False).all()
         pg = Pagination()
         page_data = pg.paginate_queryset(queryset=tasks, request=request, view=self)
         ser = TaskSerializer(instance=page_data, many=True)

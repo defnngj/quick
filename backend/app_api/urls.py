@@ -2,9 +2,9 @@ from django.urls import path
 from rest_framework import routers
 from app_api.views.user_views import LoginView
 from app_api.views.register_views import RegisterView
-from app_api.views.project_view import ProjectView, ProjectModuleView
+from app_api.views.project_view import ProjectView, ProjectModuleView, ModuleTreeView
 from app_api.views.module_view import ModuleView
-from app_api.views.module_view import NodeTreeView, NodeCaseView
+from app_api.views.module_view import NodeCaseView
 from app_api.views.case_view import CaseViewSet
 from app_api.views.task_view import TaskViewSet
 from app_api.views.result_view import ResultViewSet
@@ -16,10 +16,10 @@ url_path = [
     path('v1/project/', ProjectView.as_view()),
     path('v1/project/<int:pk>/', ProjectView.as_view()),
     path("v1/project/<int:pk>/module/", ProjectModuleView.as_view()),
+    path("v1/project/<int:pk>/moduleTree/", ModuleTreeView.as_view()),
 
     path('v1/module/', ModuleView.as_view()),
     path('v1/module/<int:pk>/', ModuleView.as_view()),
-    path("v1/<int:pk>/node/tree/", NodeTreeView.as_view()),
     path("v1/module/<int:pk>/cases/", NodeCaseView.as_view()),
 ]
 

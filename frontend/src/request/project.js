@@ -26,6 +26,10 @@ class ProjectApi {
       return request.get('/v1/project/'+project_id+'/module/', data)
     }
 
+    getModuleTree(pid){
+      return request.get('/v1/project/'+pid+'/moduleTree/')
+    }
+
   }
   
   export default new ProjectApi()
