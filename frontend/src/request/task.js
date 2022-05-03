@@ -8,7 +8,7 @@ class TaskApi {
   }
 
   getTask(tid) {
-    return request.get('/v1/task/'+tid+'/info')
+    return request.get('/v1/task/'+tid+'/info/')
   }
 
   deleteTask(tid) {

@@ -8,7 +8,18 @@
     </div>
     <el-card class="box-card">
       <div class="filter-line">
-        <el-button type="primary" @click="showCreate()">创建</el-button>
+        <span>选择项目 </span>
+        <el-select v-model="projectId" size="small" filterable placeholder="请选择项目" @change="selectProject">
+          <el-option
+            v-for="item in projectOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <span style="margin-left: 20px;">
+          <el-button type="primary" size="small" @click="showCreate()">创建</el-button>
+        </span>
       </div>
       <!-- 表格 -->
       <el-table :data="tableData"
@@ -64,11 +75,12 @@
         </el-pagination>
       </div>
     </el-card>
-    <TaskDialog v-if="showDailog" :tid=taskId @cancel="cancelTask"></TaskDialog>
+    <TaskDialog v-if="showDailog" :tid=taskId :pid=projectId @cancel="cancelTask"></TaskDialog>
   </div>
 </template>
 
 <script>
+import ProjectApi from '../../request/project'
 import TaskApi from '../../request/task'
 import TaskDialog from './TaskDialog.vue'
 
@@ -76,9 +88,11 @@ import TaskDialog from './TaskDialog.vue'
     components: {
       TaskDialog
     },
-    data(){
+    data() {
       return {
         loading: false,
+        projectId: 1,
+        projectOptions: [],
         taskId: 0,
         tableData: [],
         showDailog: false,
@@ -87,24 +101,52 @@ import TaskDialog from './TaskDialog.vue'
           page: 1,
           size: 5,
         },
-        taskHeartbeat:null
+        taskHeartbeat:null,
+        name: 'hello',
       }
     },
     created() {
+      this.initProject()
     },
     mounted() {
       this.initTask()
-      this.taskHeartbeat = setInterval(() => {
-        this.initTask()
-      }, 5000);
+      // this.taskHeartbeat = setInterval(() => {
+      //   this.initTask()
+      // }, 5000);
     },
     destroyed() {
       // 销毁时候清除定时器
       clearInterval(this.taskHeartbeat);
     },
     methods: {
+      async initProject() {
+        this.loading = true
+        const pQuery = {
+          page: 1,
+          size: 1000,
+        }
+        const resp = await ProjectApi.getProjects(pQuery)
+        if (resp.success == true) {
+          const projectData = resp.data.projectList
+          this.projectOptions = []
+          for (let i = 0; i < projectData.length; i++) {
+            this.projectOptions.push({
+              value: projectData[i].id,
+              label: projectData[i].name
+            })
+          }
+          this.projectId = this.projectOptions[0].value
+          // this.initModuleTree()
+        } else {
+          this.$message.error(resp.error.message);
+        }
+        await this.selectProject(this.projectId)
+        this.loading = false
+      },
+
       async initTask() {
         this.loading = true
+        this.query.project = this.projectId
         const resp = await TaskApi.getTasks(this.query)
         if (resp.success == true) {
           this.tableData = resp.data.taskList
@@ -115,6 +157,16 @@ import TaskDialog from './TaskDialog.vue'
         this.loading = false
       },
 
+      // 选择一个项目
+      async selectProject(val) {
+        this.projectId = val
+        for(let i = 0; i < this.projectOptions.length; i++) {
+          if (this.projectOptions[i].value == val) {
+            this.currentProjectName = this.projectOptions[i].label
+          } 
+        }
+        await this.initTask()
+      },
       // 显示创建窗口
       showCreate() {
         this.showDailog = true

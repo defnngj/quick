@@ -1,4 +1,5 @@
 from django.db import models
+from app_api.models.project_model import Project
 from app_api.models.case_model import TestCase
 
 
@@ -6,6 +7,7 @@ class TestTask(models.Model):
     """
     测试任务表
     """
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField("名称", max_length=100, blank=False, default="")
     describe = models.TextField("描述", null=True, default="")
     status = models.IntegerField("状态", default=0)  # 0未执行、1执行中、2已执行

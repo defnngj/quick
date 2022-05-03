@@ -9,17 +9,35 @@
           <el-input type="textarea" v-model="form.describe"></el-input>
         </el-form-item>
         <el-form-item label="选择用例">
-          <div class="div-tree">
-            <el-tree :data="data" :props="defaultProps" show-checkbox
+          <el-card class="div-tree">
+          <div>
+            <el-tree :data="moduleData" :props="defaultProps"
               @node-click="handleNodeClick"
               @check-change="handleCheckChange"
               node-key="id"
               :default-checked-keys="checkId">
             </el-tree>
           </div>
+          </el-card>
+          <div class="div-table">
+            <el-table
+              ref="multipleTable"
+              :data="caseData"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @select="selectionOneCase"
+              @select-all="selectionAllCases"
+              >
+              <el-table-column type="selection" width="55"> </el-table-column>
+              <el-table-column prop="id" label="ID" width="80"> </el-table-column>
+              <el-table-column prop="name" label="名称" show-overflow-tooltip> </el-table-column>
+            </el-table>
+          </div>
+           
         </el-form-item>
         <el-form-item>
           <div class="dialog-footer">
+            已选择【{{this.caseNum}}】条用例
             <el-button @click="cancelTask()">取消</el-button>
             <el-button type="primary" @click="onSubmit('form')">保存</el-button>
           </div>
@@ -30,15 +48,18 @@
 </template>
 
 <script>
+  import ProjectApi from '../../request/project'
+  import ModuleApi from '../../request/module'
   import TaskApi from '../../request/task'
-  import CaseApi from '../../request/case'
+  // import CaseApi from '../../request/case'
 
   export default {
-    props: ['tid'],
+    props: ['tid', 'pid'],
     data() {
       return {
         showStatus: true,
         showTitle: '',
+        moduleData: [],
         form: {
           id: 0,
           name: '',
@@ -56,7 +77,10 @@
           children: 'children',
           label: 'label'
         },
-        checkId: []
+        checkId: [],
+        caseData: [],
+        currentModuleId: 0,
+        caseNum: 0
       }
     },
     created() {
@@ -73,8 +97,7 @@
       });
     },
     mounted() {
-      // this.initTask()
-      this.InitCaseTree()
+      this.initModuleTree()
     },
     methods: {
       handleCheckChange(data, checked) {
@@ -92,17 +115,93 @@
           }
         }
       },
+
+      // 点击模块节点
       handleNodeClick(data) {
-        console.log("click node", data);
+        console.log("click node", data)
+        this.currentModuleId = data.id
+        if (this.form.cases[data.id] == undefined) {
+          this.form.cases[data.id] = []
+        }
+        this.getModuleCaseList(data.id)
       },
 
-      // 获取用例树
-      async InitCaseTree() {
-        const resp = await CaseApi.getCaseTree()
+      async initModuleTree() {
+        this.loading = true
+        const resp = await ProjectApi.getModuleTree(this.pid)
         if (resp.success == true) {
-          this.data = resp.data
+          this.moduleData = JSON.parse(JSON.stringify(resp.data))
+        } else {
+          this.$message.error(resp.error.message)
+        }
+        this.loading = false
+      },
+
+      // 初始化用例数据
+      async getModuleCaseList(mid) {
+        
+        this.caseLoading = true
+        const query = { page: 1, size: 5}
+        const resp = await ModuleApi.getModuleCases(mid, query)
+        if (resp.success == true) {
+          this.caseData = resp.data.caseList
+          this.total = resp.data.total
+          
+          // 已经选中的用例
+          this.$nextTick(() => {
+            let rows = []
+            for (let i = 0; i < this.form.cases[mid].length; i++) {
+              for (let j = 0; j < this.caseData.length; j++) {
+                if (this.form.cases[mid][i] == this.caseData[j].id) {
+                  rows.push(this.caseData[j])
+                }
+              }
+            }
+            rows.forEach(row => {
+              this.$refs.multipleTable.toggleRowSelection(row);
+            });
+          })
+
         } else {
           this.$message.error(resp.error.message);
+        }
+        this.caseLoading = false
+      },
+
+      // 选择所有用例
+      selectionAllCases(val) {
+        this.multipleSelection = val
+        const moduleCases = []
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          moduleCases.push(this.multipleSelection[i].id)
+        }
+        this.form.cases[this.currentModuleId] =  moduleCases
+
+        this.calculationCase()
+      },
+
+      // 选择一条用例
+      selectionOneCase(val, row) {
+        console.log("selection-one-change", val)
+        console.log("selection-one-change", row)
+        this.multipleSelection = val
+        const moduleCases = []
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          moduleCases.push(this.multipleSelection[i].id)
+        }
+        this.form.cases[this.currentModuleId] =  moduleCases
+
+        this.calculationCase()
+      },
+
+      // 计算用例数量
+      calculationCase() {
+        this.caseNum = 0
+        for (let i = 0; i < this.form.cases.length; i++) {
+          if (this.form.cases[i] != undefined) {
+            this.caseNum += this.form.cases[i].length
+          }
+          // this.caseNum += this.form.cases[i].length
         }
       },
 
@@ -127,24 +226,25 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             if(this.tid === 0) {
-              TaskApi.createTask(this.form).then(resp => {
-                if (resp.success == true) {
-                  this.$message.success("创建成功！")
-                  this.cancelTask()
-                } else {
-                  this.$message.error("创建失败！");
-                }
-              })
+              console.log("adfasd", this.form)
+              // TaskApi.createTask(this.form).then(resp => {
+              //   if (resp.success == true) {
+              //     this.$message.success("创建成功！")
+              //     this.cancelTask()
+              //   } else {
+              //     this.$message.error("创建失败！");
+              //   }
+              // })
             } else {
               this.form.id = this.tid
-              TaskApi.updateTask(this.form).then(resp => {
-                if (resp.success == true) {
-                  this.$message.success("更新成功！")
-                  this.cancelTask()
-                } else {
-                  this.$message.error("更新失败！");
-                }
-              })
+              // TaskApi.updateTask(this.form).then(resp => {
+              //   if (resp.success == true) {
+              //     this.$message.success("更新成功！")
+              //     this.cancelTask()
+              //   } else {
+              //     this.$message.error("更新失败！");
+              //   }
+              // })
             }
             
           } else {
@@ -160,16 +260,22 @@
 </script>
 
 <style>
-.el-tree {
-  background: #f1f3fa !important;
-}
+
 </style>
 <style scoped>
 .dialog-footer {
   float: right;
 }
 .div-tree {
-  max-height: 180px;
+  height: 300px;
   overflow: auto;
+  width: 30%;
+  float: left;
+}
+.div-table {
+  height: 300px;
+  overflow: auto;
+  width: 65%;
+  float: right;
 }
 </style>
