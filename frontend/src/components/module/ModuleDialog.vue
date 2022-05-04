@@ -115,26 +115,14 @@
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            if(this.moduleid === 0) {
-              ModuleApi.createModule(this.form).then(resp => {
-                if (resp.success == true) {
-                  this.$message.success("创建成功！")
-                  this.cancelModule()
-                } else {
-                  this.$message.error("创建失败！");
-                }
-              })
-            } else {
-              ModuleApi.updateModule(this.moduleid, this.form).then(resp => {
-                if (resp.success == true) {
-                  this.$message.success("更新成功！")
-                  this.cancelModule()
-                } else {
-                  this.$message.error("更新失败！");
-                }
-              })
-            }
-            
+            ModuleApi.createModule(this.form).then(resp => {
+              if (resp.success == true) {
+                this.$message.success("创建成功！")
+                this.cancelModule()
+              } else {
+                this.$message.error("创建失败！");
+              }
+            })
           } else {
             return false;
           }
