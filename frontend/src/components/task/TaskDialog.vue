@@ -13,9 +13,7 @@
           <div>
             <el-tree :data="moduleData" :props="defaultProps"
               @node-click="handleNodeClick"
-              @check-change="handleCheckChange"
-              node-key="id"
-              :default-checked-keys="checkId">
+              node-key="id">
             </el-tree>
           </div>
           </el-card>
@@ -61,6 +59,7 @@
         showTitle: '',
         moduleData: [],
         form: {
+          project_id: 0,
           id: 0,
           name: '',
           describe: '',
@@ -77,13 +76,13 @@
           children: 'children',
           label: 'label'
         },
-        checkId: [],
         caseData: [],
         currentModuleId: 0,
         caseNum: 0
       }
     },
     created() {
+      this.form.project_id = this.pid
       if (this.tid === 0) {
         this.showTitle = "创建任务"
       } else {
@@ -100,29 +99,10 @@
       this.initModuleTree()
     },
     methods: {
-      handleCheckChange(data, checked) {
-        if(data.id != undefined) {
-          if(checked == true) {
-            this.form.cases.push(data.id)
-          } else {
-            // this.form.cases.remove(data.id)
-            // arr2.splice(1,2,'ttt'); 
-            for (var i = 0; i < this.form.cases.length; i++) {
-              if(this.form.cases[i] == data.id) {
-                this.form.cases.splice(i, 1);
-              }
-            }
-          }
-        }
-      },
 
       // 点击模块节点
       handleNodeClick(data) {
-        console.log("click node", data)
         this.currentModuleId = data.id
-        if (this.form.cases[data.id] == undefined) {
-          this.form.cases[data.id] = []
-        }
         this.getModuleCaseList(data.id)
       },
 
@@ -149,10 +129,18 @@
           
           // 已经选中的用例
           this.$nextTick(() => {
+            
+            var casesId = []
+            for(let i = 0; i < this.form.cases.length; i++) {
+              if (this.form.cases[i].moduleId == mid) {
+                casesId = this.form.cases[i].casesId
+              }
+            }
+
             let rows = []
-            for (let i = 0; i < this.form.cases[mid].length; i++) {
+            for (let i = 0; i < casesId.length; i++) {
               for (let j = 0; j < this.caseData.length; j++) {
-                if (this.form.cases[mid][i] == this.caseData[j].id) {
+                if (casesId[i] == this.caseData[j].id) {
                   rows.push(this.caseData[j])
                 }
               }
@@ -170,38 +158,46 @@
 
       // 选择所有用例
       selectionAllCases(val) {
-        this.multipleSelection = val
-        const moduleCases = []
-        for (let i = 0; i < this.multipleSelection.length; i++) {
-          moduleCases.push(this.multipleSelection[i].id)
-        }
-        this.form.cases[this.currentModuleId] =  moduleCases
-
-        this.calculationCase()
+        this.selectiveCase(val)
       },
 
       // 选择一条用例
       selectionOneCase(val, row) {
         console.log("selection-one-change", val)
         console.log("selection-one-change", row)
-        this.multipleSelection = val
+        this.selectiveCase(val)
+      },
+
+      // 公共方法：选择用例
+      selectiveCase(multipleSelection) {
         const moduleCases = []
-        for (let i = 0; i < this.multipleSelection.length; i++) {
-          moduleCases.push(this.multipleSelection[i].id)
+        for (let i = 0; i < multipleSelection.length; i++) {
+          moduleCases.push(multipleSelection[i].id)
         }
-        this.form.cases[this.currentModuleId] =  moduleCases
+
+        var selective = false
+        for (let i = 0; i < this.form.cases.length; i++) {
+          if (this.form.cases[i].moduleId == this.currentModuleId) {
+            selective = true
+            this.form.cases[i].casesId = moduleCases
+          }
+        }
+        if (selective == false) {
+           this.form.cases.push({
+            moduleId: this.currentModuleId,
+            casesId: moduleCases
+          })
+        }
 
         this.calculationCase()
       },
 
-      // 计算用例数量
+      // 公共方法：计算用例数量
       calculationCase() {
+        console.log("统计",  this.form.cases)
         this.caseNum = 0
         for (let i = 0; i < this.form.cases.length; i++) {
-          if (this.form.cases[i] != undefined) {
-            this.caseNum += this.form.cases[i].length
-          }
-          // this.caseNum += this.form.cases[i].length
+          this.caseNum += this.form.cases[i].casesId.length
         }
       },
 
@@ -210,10 +206,12 @@
         const resp = await TaskApi.getTask(this.tid)
         if (resp.success == true) {
           this.form = resp.data
-          this.checkId = resp.data.cases
+          // this.checkId = resp.data.cases
         } else {
-          this.$message.error(resp.error.message);
+          this.$message.error(resp.error.message)
         }
+
+        this.calculationCase()
       },
 
       // 关闭dialog
@@ -227,24 +225,25 @@
           if (valid) {
             if(this.tid === 0) {
               console.log("adfasd", this.form)
-              // TaskApi.createTask(this.form).then(resp => {
-              //   if (resp.success == true) {
-              //     this.$message.success("创建成功！")
-              //     this.cancelTask()
-              //   } else {
-              //     this.$message.error("创建失败！");
-              //   }
-              // })
+              TaskApi.createTask(this.form).then(resp => {
+                if (resp.success == true) {
+                  this.$message.success("创建成功！")
+                  this.cancelTask()
+                } else {
+                  this.$message.error("创建失败！");
+                }
+              })
             } else {
+              console.log("edit", this.form)
               this.form.id = this.tid
-              // TaskApi.updateTask(this.form).then(resp => {
-              //   if (resp.success == true) {
-              //     this.$message.success("更新成功！")
-              //     this.cancelTask()
-              //   } else {
-              //     this.$message.error("更新失败！");
-              //   }
-              // })
+              TaskApi.updateTask(this.form).then(resp => {
+                if (resp.success == true) {
+                  this.$message.success("更新成功！")
+                  this.cancelTask()
+                } else {
+                  this.$message.error("更新失败！");
+                }
+              })
             }
             
           } else {

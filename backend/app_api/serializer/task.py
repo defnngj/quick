@@ -14,14 +14,17 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestTask
-        fields = ['id', 'name', 'describe', 'status', 'cases', 'create_time']  # 要显示的字段
+        fields = ['id', 'project_id', 'name', 'describe', 'status', 'cases', 'create_time']  # 要显示的字段
 
     def get_cases(self, testtask_obj):
         """查询task关联的case id list"""
         tcr = TaskCaseRelevance.objects.filter(task=testtask_obj)
         case_list = []
         for i in tcr:
-            case_list.append(i.case_id)
+            case_list.append({
+                "moduleId": i.module_id,
+                "casesId": json.loads(i.cases)
+            })
         return case_list
 
 
@@ -29,6 +32,7 @@ class TaskValidator(serializers.Serializer):
     """
     任务的验证器
     """
+    project_id = serializers.IntegerField(required=True, error_messages={"required": "project_id不能为空"})
     name = serializers.CharField(required=True, max_length=50,
                                  error_messages={"required": "name不能为空",
                                                  "invalid": "类型不对",
@@ -48,13 +52,16 @@ class TaskValidator(serializers.Serializer):
         """
         创建任务
         """
+        project_id = validated_data.get('project_id')
         name = validated_data.get('name')
         describe = validated_data.get('describe')
         status = validated_data.get('status', 0)
         # 创建关联数据
-        task = TestTask.objects.create(name=name, describe=describe, status=status)
+        task = TestTask.objects.create(project_id=project_id, name=name, describe=describe, status=status)
         for case in validated_data.get('cases', []):
-            TaskCaseRelevance.objects.create(task_id=task.id, case_id=case)
+            module_id = case["moduleId"]
+            cases = json.dumps(case["casesId"])
+            TaskCaseRelevance.objects.create(task_id=task.id, module_id=module_id, cases=cases)
         return task
 
     def update(self, instance, validated_data):
@@ -69,6 +76,8 @@ class TaskValidator(serializers.Serializer):
         # 删除任务关联数据，重新创建
         TaskCaseRelevance.objects.filter(task_id=instance.id).delete()
         for case in validated_data.get('cases', []):
-            TaskCaseRelevance.objects.create(task_id=instance.id, case_id=case)
+            module_id = case["moduleId"]
+            cases = json.dumps(case["casesId"])
+            TaskCaseRelevance.objects.create(task_id=instance.id, module_id=module_id, cases=cases)
         instance.save()
         return instance

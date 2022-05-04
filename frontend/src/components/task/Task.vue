@@ -57,7 +57,7 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="100">
           <template slot-scope="scope">
-            <el-button @click="showEdit(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
+            <el-button @click="editTask(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
             <el-button @click="deleteTask(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
           </template>
         </el-table-column>
@@ -92,6 +92,7 @@ import TaskDialog from './TaskDialog.vue'
       return {
         loading: false,
         projectId: 1,
+        projectName: '',
         projectOptions: [],
         taskId: 0,
         tableData: [],
@@ -162,8 +163,9 @@ import TaskDialog from './TaskDialog.vue'
         this.projectId = val
         for(let i = 0; i < this.projectOptions.length; i++) {
           if (this.projectOptions[i].value == val) {
-            this.currentProjectName = this.projectOptions[i].label
-          } 
+            this.projectName = this.projectOptions[i].label
+            this.projectId = this.projectOptions[i].value
+          }
         }
         await this.initTask()
       },
@@ -173,7 +175,7 @@ import TaskDialog from './TaskDialog.vue'
       },
 
       // 显示编辑窗口
-      showEdit(row) {
+      editTask(row) {
         this.taskId = row.id
         this.showDailog = true
       },

@@ -25,7 +25,8 @@ class TaskCaseRelevance(models.Model):
     任务用例关联表
     """
     task = models.ForeignKey(TestTask, on_delete=models.CASCADE)
-    case = models.ForeignKey(TestCase, on_delete=models.CASCADE)
+    module_id = models.IntegerField(default=0)
+    cases = models.TextField(null=True)
     create_time = models.DateTimeField("创建时间", auto_now_add=True)
 
 

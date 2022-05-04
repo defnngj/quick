@@ -15,7 +15,7 @@ class CaseApi {
   }
 
   getCase(cid) {
-    return request.get('/v1/case/'+cid+'/info')
+    return request.get('/v1/case/'+cid+'/info/')
   }
 
   deleteCase(cid) {
@@ -30,8 +30,8 @@ class CaseApi {
     return request.put('/v1/case/'+cid+'/update/', data)
   }
 
-  getCaseTree() {
-    return request.get('/v1/case/tree')
+  getCaseTree(data) {
+    return request.get('/v1/case/tree/', data)
   }
 }
 

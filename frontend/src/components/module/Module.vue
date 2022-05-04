@@ -11,9 +11,9 @@
       <!-- 项目/模块树 -->
       <div class="module-tree">
         
-        <el-form label-width="80px" label-position="left">
-          <el-form-item label="切换项目">
-            <el-select v-model="projectId" filterable placeholder="选择项目" @change="selectProject">
+        <el-form label-width="80px" label-position="right">
+          <el-form-item label="选择项目">
+            <el-select v-model="projectId" size="small" filterable placeholder="请选择项目" @change="selectProject">
               <el-option
                 v-for="item in projectOptions"
                 :key="item.value"
@@ -131,7 +131,7 @@ import CaseDialog from './CaseDialog.vue'
       ModuleDialog,
       CaseDialog
     },
-    data(){
+    data() {
       return {
         loading: false,
         caseLoading: false,
@@ -371,7 +371,7 @@ import CaseDialog from './CaseDialog.vue'
 
 <style scoped>
 .filter-line {
-  height: 50px;
+  height: 65px;
   text-align: left;
 }
 .foot-page {
