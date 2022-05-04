@@ -194,7 +194,6 @@
 
       // 公共方法：计算用例数量
       calculationCase() {
-        console.log("统计",  this.form.cases)
         this.caseNum = 0
         for (let i = 0; i < this.form.cases.length; i++) {
           this.caseNum += this.form.cases[i].casesId.length
