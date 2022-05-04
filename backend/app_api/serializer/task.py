@@ -11,10 +11,11 @@ class TaskSerializer(serializers.ModelSerializer):
     """
     cases = serializers.SerializerMethodField()  # 反向获取模块的名称
     create_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')  # 日期格式化
+    update_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')  # 日期格式化
 
     class Meta:
         model = TestTask
-        fields = ['id', 'project_id', 'name', 'describe', 'status', 'cases', 'create_time']  # 要显示的字段
+        fields = ['id', 'project_id', 'name', 'describe', 'status', 'cases', 'create_time', 'update_time']  # 要显示的字段
 
     def get_cases(self, testtask_obj):
         """查询task关联的case id list"""

@@ -120,7 +120,7 @@ class TaskViewSet(BaseViewSet):
             cases = ser.data.get("cases", [])
             for case in cases:
                 case_list += case["casesId"]
-            
+
             # running.delay()
             TaskThread(tid, case_list).run()
             print("case list-->", case_list)

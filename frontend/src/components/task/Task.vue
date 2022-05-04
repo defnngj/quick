@@ -28,11 +28,10 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.8)"
           style="width: 100%">
-        <el-table-column prop="name" label="名称" min-width="20%">
-        </el-table-column>
-        <el-table-column prop="describe" label="描述" min-width="30%">
-        </el-table-column>
-        <el-table-column prop="status" label="状态" min-width="15%">
+        <el-table-column prop="id" label="ID" min-width="10%"> </el-table-column>
+        <el-table-column prop="name" label="名称" min-width="20%"> </el-table-column>
+        <el-table-column prop="describe" label="描述" min-width="30%"> </el-table-column>
+        <el-table-column prop="status" label="状态" min-width="10%"> 
           <template slot-scope="scope">
             <span v-if="scope.row.status === 0">
               <el-tag>未执行</el-tag>
@@ -48,9 +47,9 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="create_time" label="创建时间" min-width="30%">
-        </el-table-column>
-        <el-table-column fixed="right" label="任务" width="50">
+        <el-table-column prop="create_time" label="创建时间" min-width="15%"> </el-table-column>
+        <el-table-column prop="update_time" label="更新时间" min-width="15%"> </el-table-column>
+        <el-table-column fixed="right" label="任务" width="100">
           <template slot-scope="scope">
             <el-button @click="runTask(scope.row)" type="primary" size="mini" circle icon="el-icon-time"></el-button>
           </template>
