@@ -103,7 +103,7 @@ class TaskViewSet(BaseViewSet):
         return self.response_success(data=val.data)
 
     @action(methods=["get"], detail=True, url_path='running')
-    def get_running(self, request, *args, **kwargs):
+    def running_task(self, request, *args, **kwargs):
         """
         运行测试任务
         /api/interface/v1/task/<pk>/running/
@@ -116,7 +116,11 @@ class TaskViewSet(BaseViewSet):
             except TestTask.DoesNotExist:
                 return self.response_success(error=self.TASK_OBJECT_NULL)
 
-            case_list = ser.data.get("cases", [])
+            case_list = []
+            cases = ser.data.get("cases", [])
+            for case in cases:
+                case_list += case["casesId"]
+            
             # running.delay()
             TaskThread(tid, case_list).run()
             print("case list-->", case_list)

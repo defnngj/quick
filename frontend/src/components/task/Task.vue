@@ -110,10 +110,9 @@ import TaskDialog from './TaskDialog.vue'
       this.initProject()
     },
     mounted() {
-      this.initTask()
-      // this.taskHeartbeat = setInterval(() => {
-      //   this.initTask()
-      // }, 5000);
+      this.taskHeartbeat = setInterval(() => {
+        this.initTask()
+      }, 5000);
     },
     destroyed() {
       // 销毁时候清除定时器
