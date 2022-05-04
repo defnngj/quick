@@ -113,7 +113,6 @@ function commonRequest(requestType, url, dataOrParam, responseType, isLoading = 
 
 export default {
   get(url, params, responseType = 'json', isLoading = false, additionalHeader = {}) {
-    console.log('get: ', additionalHeader)
     return commonRequest('get', url, params, responseType, isLoading, additionalHeader)
   },
 
