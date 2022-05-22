@@ -75,7 +75,7 @@ function commonRequest(requestType, url, dataOrParam, responseType, isLoading = 
     })
     .catch(error => {
       if (error.response.status === 403) {
-        window.location.href="/login"
+        window.location.href="/#/login"
       }
       let response = {}
       if (Object.prototype.hasOwnProperty.call(error, 'response')) {
