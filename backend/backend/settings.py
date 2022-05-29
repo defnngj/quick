@@ -117,7 +117,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-TOKEN_TIME = 1800
+TOKEN_TIME = 7200
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -145,8 +145,3 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_TASK_SERIALIZER = 'json'
-
-
-
-
-
