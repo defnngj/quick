@@ -78,7 +78,7 @@ class ProjectViewV2(BaseViewSet):
             return self.response_fail(error=val.errors)
         return self.response_success()
 
-    @action(methods=["put"], detail=True, url_path="delete")
+    @action(methods=["delete"], detail=True, url_path="delete")
     def delete_project(self, request, *args, **kwargs):
         """
         删除项目
@@ -89,11 +89,11 @@ class ProjectViewV2(BaseViewSet):
         project.update(is_delete=True)
         return self.response_success()
 
-    @action(methods=["post"], detail=True, url_path="upload")
+    @action(methods=["post"], detail=False, url_path="upload")
     def upload_project_image(self, request, *args, **kwargs):
         """
         上传项目图片
-        api/v2/project/<project_id>/upload/
+        api/v2/project/upload/
         """
         file = self.request.FILES['file']
 
@@ -114,7 +114,7 @@ class ProjectViewV2(BaseViewSet):
         with open(upload_file, 'wb+') as f:
             for chunk in file.chunks():
                 f.write(chunk)
-        return self.response_success(data={"file": file_name})
+        return self.response_success(data={"name": file_name})
 
     @action(methods=["get"], detail=True, url_path="moduleTree")
     def get_module_tree(self, request, *args, **kwargs):

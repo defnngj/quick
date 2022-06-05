@@ -14,9 +14,9 @@
       <div v-for="(item, index) in tableData" :key="index">
         <el-col :span="7" class="project-card">
           <el-card class="box-card">
-            <el-avatar shape="square" :size="100" fit="fill" :src="url"></el-avatar>
+            <el-avatar shape="square" :size="100" fit="fill" :src="item.image"></el-avatar>
             <div slot="header" class="clearfix">
-              <span>{{item.id}} - {{item.name}} </span>
+              <span>【{{item.id}}】{{item.name}} </span>
               <span style="float: right; padding: 3px 0">
                 <el-dropdown style="left: 5px;">
                   <i class="el-icon-setting" style="margin-right: 15px"></i>
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import ProjectApi from '../../request/project'
+import ProjectApi from '../../request/project_v2'
 import projectDialog from '../project/projectDialog'
 
   export default {
@@ -75,7 +75,6 @@ import projectDialog from '../project/projectDialog'
           page: 1,
           size: 6,
         },
-        url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
       }
     },
     created() {
@@ -90,6 +89,15 @@ import projectDialog from '../project/projectDialog'
         if (resp.success == true) {
           this.tableData = resp.data.projectList
           this.total = resp.data.total
+          
+          for(let i = 0; i < this.tableData.length; i++) {
+            if (this.tableData[i].image == null) {
+              this.tableData[i].image = 'static/images/default.jpeg'
+            } else {
+              this.tableData[i].image = 'static/images/' + this.tableData[i].image
+            }
+          }
+
         } else {
           this.$message.error(resp.error.message);
         }

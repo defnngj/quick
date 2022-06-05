@@ -15,7 +15,15 @@ module.exports = {
           pathRewrite: {
             '^/api': ''
           }
-        }
+        },
+        static: {
+          target: "http://127.0.0.1:8000/static", // 定义后端的接口
+          changeOrigin: true,
+          ws: true,
+          pathRewrite: {
+            "^/static": "",
+          },
+        },
       }
     },
 }

@@ -64,7 +64,7 @@ router.beforeEach((to, from, next) => {
   if (to.path === '/login') { // 当路由为login时就直接下一步操作
     next();
   } else { // 否则就需要判断
-    if(sessionStorage.token){ // 如果有用户名就进行下一步操作
+    if (sessionStorage.token) { // 如果有用户名就进行下一步操作
       next()
     }else{
       next({path: '/login'}) // 没有用户名就跳转到login页面

@@ -8,6 +8,23 @@
         <el-form-item label="描述">
           <el-input cy-data="project-desc" type="textarea" v-model="form.describe"></el-input>
         </el-form-item>
+        <el-form-item label="图片" prop="image">
+          <div id="image">
+            <el-upload
+              action="#"
+              :before-upload="beforeUpload"
+              list-type="picture-card"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :file-list="fileList"
+            >
+              <i class="el-icon-plus"></i>
+            </el-upload>
+            <el-dialog :visible.sync="imageVisible">
+              <img width="100%" :src="imageUrl" alt="" />
+            </el-dialog>
+          </div>
+        </el-form-item>
         <el-form-item label="状态">
           <span style="float: left;">
             <el-switch cy-data="project-status" v-model="form.status"></el-switch>
@@ -25,7 +42,7 @@
 </template>
 
 <script>
-  import ProjectApi from '../../request/project'
+  import ProjectApi from '../../request/project_v2'
 
   export default {
     props: ['pid'],
@@ -36,6 +53,7 @@
         form: {
           name: '',
           describe: '',
+          image: "",
           status: true
         },
          rules: {
@@ -43,7 +61,10 @@
             { required: true, message: '请输入项目名称', trigger: 'blur' }
           ]
         },
-        inResize: true
+        inResize: true,
+        fileList: [],
+        imageUrl: "",
+        imageVisible: false
       }
     },
     created() {
@@ -68,7 +89,22 @@
       async getProject() {
         const resp = await ProjectApi.getProject(this.pid)
         if (resp.success == true) {
+          
           this.form = resp.data
+          var file_name = ""
+          var file_path = ""
+          if (resp.data.image === null) {
+            file_name = "default.jpeg"
+            file_path =  "static/images/default.jpeg"
+          } else {
+            file_name = resp.data.image
+            file_path = "static/images/" + resp.data.image
+          }
+
+          this.fileList.push({
+            name: file_name,
+            url: file_path,
+          })
         } else {
           this.$message.error(resp.error.message);
         }
@@ -90,7 +126,7 @@
                   this.cancelProject()
                 } else {
                   this.$message.error("创建失败！");
-                }
+                } 
               })
             } else {
               ProjectApi.updateProject(this.pid, this.form).then(resp => {
@@ -109,6 +145,40 @@
         });
         
       },
+
+      // 删除图片
+      handleRemove(file) {
+        console.log("删除", file)
+        this.fileList = []
+      },
+
+      // 预览图片
+      handlePreview(file, fileList) {
+        console.log("上传成功", file, fileList)
+        this.imageUrl = file.url
+        this.imageVisible = true
+      },
+
+      beforeUpload(file) {
+        let fd = new FormData()
+        fd.append("file", file)
+
+        ProjectApi.updateProjectImage(fd).then((resp) => {
+          if (resp.data.success === true) {
+            this.form.image = resp.data.data.name
+            const imagePath = "/static/images/" + resp.data.data.name
+            this.fileList.push({
+              name: file.name,
+              url: imagePath,
+            })
+            this.$message.success("上传成功！")
+          } else {
+            console.log("上传失败", resp)
+            this.$message.error(resp.error.message)
+          }
+        })
+        return true
+      }
 
     }
 

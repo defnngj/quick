@@ -7,7 +7,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'describe', 'status', 'create_time']  # 要显示的字段
+        fields = ['id', 'name', 'describe', 'image', 'status', 'create_time']  # 要显示的字段
 
 
 class ProjectValidator(serializers.Serializer):
@@ -19,6 +19,7 @@ class ProjectValidator(serializers.Serializer):
                                                  "invalid": "类型不对",
                                                  "max_length": "长度不能大于50"})
     describe = serializers.CharField(required=False)
+    image = serializers.CharField(required=False)
     status = serializers.BooleanField(required=False)
 
     # def validate_name(self, value):
@@ -43,6 +44,7 @@ class ProjectValidator(serializers.Serializer):
         """
         instance.name = validated_data.get("name")
         instance.describe = validated_data.get("describe")
+        instance.image = validated_data.get("image")
         instance.status = validated_data.get("status")
         instance.save()
         return instance
