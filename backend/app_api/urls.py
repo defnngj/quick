@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework import routers
 from app_api.views.user_views import LoginView
 from app_api.views.register_views import RegisterView
+from app_api.views.project_view_v2 import ProjectViewV2
 from app_api.views.project_view import ProjectView, ProjectModuleView, ModuleTreeView
 from app_api.views.module_view import ModuleView
 from app_api.views.module_view import NodeCaseView
@@ -24,9 +25,9 @@ url_path = [
 ]
 
 router = routers.SimpleRouter()
+router.register(r'v2/project', ProjectViewV2)  # 项目管理
 router.register(r'v1/case', CaseViewSet)  # 用例管理
 router.register(r'v1/task', TaskViewSet)  # 任务管理
 router.register(r'v1/result', ResultViewSet)  # 结果管理
 
 urlpatterns = url_path + router.urls
-

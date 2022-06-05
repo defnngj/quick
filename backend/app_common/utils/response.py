@@ -17,6 +17,8 @@ class Error:
     PROJECT_ID_NULL = {"10020": "项目id不存在"}
     PROJECT_OBJECT_NULL = {"10021": "通过id查询项目不存在"}
     PROJECT_DELETE_ERROR = {"10023": "项目删除失败"}
+    PROJECT_IMAGE_TYPE_ERROR = {"10024": "项目图片类型错误"}
+    PROJECT_IMAGE_SIZE_ERROR = {"10025": "项目图片大小错误"}
 
     MODULE_ID_NULL = {"10030": "模块id不存在"}
     MODULE_OBJECT_NULL = {"10031": "模块对象不存在"}
