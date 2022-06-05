@@ -17,17 +17,20 @@ class BaseView:
         return self.response_success(success=False, error=error_msg, data=[])
 
     @staticmethod
-    def response_success(success: bool = True, message: str = "", error={}, data: any = []) -> Response:
+    def response_success(success: bool = True, message: str = "", error: dict = None, data: any = None) -> Response:
         """
         自定义接口返回格式
         """
-        if error == {}:
+        if error is None:
             error_code = ""
             error_msg = ""
         else:
             success = False
             error_code = list(error.keys())[0]
             error_msg = list(error.values())[0]
+
+        if data is None:
+            data = []
 
         resp = {
             "success": success,
